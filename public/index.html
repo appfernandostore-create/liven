@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liven | Inicia sesión</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand">
+          <div class="brand-mark">L</div>
+          <span>Liven</span>
+        </div>
+        <a href="#" class="topbar-link">Ayuda</a>
+      </div>
+    </header>
+
+    <main class="hero-layout">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <h1>¡Hola!</h1>
+          <p>Nos encanta tenerte de nuevo por aquí</p>
+        </div>
+
+        <form class="login-form" id="loginForm">
+          <label>
+            <span>Correo electrónico</span>
+            <input type="email" name="email" placeholder="tucorreo@ejemplo.com" required />
+          </label>
+
+          <label>
+            <span>Contraseña</span>
+            <div class="password-field">
+              <input type="password" name="password" placeholder="••••••••" required />
+              <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
+            </div>
+          </label>
+
+          <div class="forgot-link">
+            <a href="#">¿Olvidaste tu contraseña?</a>
+          </div>
+
+          <button type="submit" class="primary-button">Continuar</button>
+
+          <div class="register-prompt">¿Aún no tienes cuenta? <a href="register.html">Regístrate ahora</a></div>
+
+          <div class="divider"><span>o continúa con</span></div>
+
+          <div class="social-grid">
+            <button type="button" class="social-button google">Continuar con Google</button>
+            <button type="button" class="social-button apple">Continuar con Apple</button>
+          </div>
+        </form>
+
+      </section>
+
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

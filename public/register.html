@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liven | Regístrate</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand">
+          <div class="brand-mark">L</div>
+          <span>Liven</span>
+        </div>
+        <a href="index.html" class="topbar-link">Regresar</a>
+      </div>
+    </header>
+
+    <main class="hero-layout">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <h1>Regístrate</h1>
+          <p>Completa tus datos para crear tu cuenta y empezar a descubrir experiencias.</p>
+        </div>
+
+        <form class="register-form">
+          <label>
+            <span>Nombre</span>
+            <input type="text" name="firstName" placeholder="Nombre" required />
+          </label>
+
+          <label>
+            <span>Apellido</span>
+            <input type="text" name="lastName" placeholder="Apellido" required />
+          </label>
+
+          <label>
+            <span>Correo electrónico</span>
+            <input type="email" name="email" placeholder="tucorreo@ejemplo.com" required />
+          </label>
+
+          <label>
+            <span>Contraseña</span>
+            <div class="password-field">
+              <input type="password" name="password" placeholder="••••••••" required />
+              <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
+            </div>
+          </label>
+
+          <label>
+            <span>Verificar contraseña</span>
+            <div class="password-field">
+              <input type="password" name="confirmPassword" placeholder="••••••••" required />
+              <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
+            </div>
+          </label>
+
+          <button type="submit" class="primary-button">Crear cuenta</button>
+          <a href="index.html" class="secondary-button back-button">Volver</a>
+          <div class="form-caption">¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a></div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay hidden" id="successModal">
+    <div class="modal-card">
+      <h2>Cuenta creada</h2>
+      <p>Tu cuenta se ha creado correctamente. Bienvenido a Liven.</p>
+      <button id="modalClose" class="primary-button">Continuar</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
