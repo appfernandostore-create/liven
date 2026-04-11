@@ -27,7 +27,7 @@ const clientSchema = new mongoose.Schema({
 
 clientSchema.index({ email: 1 }, { unique: true, name: 'clients_email_unique_idx' });
 
-clientSchema.pre('validate', function (next) {
+clientSchema.pre('validate', function () {
   const resolvedFullName = String(this.fullName || '').trim() || [this.firstName, this.lastName].filter(Boolean).join(' ').trim();
 
   if (resolvedFullName) {
@@ -45,8 +45,6 @@ clientSchema.pre('validate', function (next) {
       this.lastName = nameParts.slice(1).join(' ') || nameParts[0] || resolvedFullName;
     }
   }
-
-  next();
 });
 
 module.exports = mongoose.model('Client', clientSchema);
