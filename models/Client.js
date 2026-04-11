@@ -4,7 +4,14 @@ const clientSchema = new mongoose.Schema({
   fullName: { type: String, required: true, trim: true },
   firstName: { type: String, trim: true },
   lastName: { type: String, trim: true },
-  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Correo electrónico inválido.']
+  },
   phone: { type: String, required: true, trim: true },
   password: { type: String, required: true },
   role: { type: String, default: 'CLIENTE' },
@@ -14,7 +21,11 @@ const clientSchema = new mongoose.Schema({
     default: 'GRATUITO'
   },
   createdAt: { type: Date, default: Date.now }
+}, {
+  collection: 'clients'
 });
+
+clientSchema.index({ email: 1 }, { unique: true, name: 'clients_email_unique_idx' });
 
 clientSchema.pre('validate', function (next) {
   const resolvedFullName = String(this.fullName || '').trim() || [this.firstName, this.lastName].filter(Boolean).join(' ').trim();

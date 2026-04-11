@@ -7,7 +7,10 @@ const Client = require('./models/Client');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = String(process.env.MONGODB_URI || '').trim();
+const MONGO_CONNECT_TIMEOUT_MS = 10000;
+let mongoConnectionPromise = null;
+let mongoInitializationPromise = null;
 
 const DEFAULT_CLIENTS = [
   {
@@ -68,14 +71,97 @@ const compareStoredPassword = async function (storedPassword, candidatePassword)
   return storedPassword === candidatePassword;
 };
 
+const formatMongoUriForLogs = function (uri) {
+  if (!uri) {
+    return 'MONGODB_URI vacía';
+  }
+
+  return uri.replace(/(mongodb(?:\+srv)?:\/\/)([^@]+)@/i, '$1***:***@');
+};
+
+const getMongoConnectionStateLabel = function () {
+  const states = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+
+  return states[mongoose.connection.readyState] || 'unknown';
+};
+
+const connectToMongo = async function () {
+  if (!MONGODB_URI) {
+    console.warn('[mongo] MONGODB_URI no configurada.');
+    return null;
+  }
+
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
+  if (!mongoConnectionPromise) {
+    console.log('[mongo] Intentando conectar a Atlas con URI:', formatMongoUriForLogs(MONGODB_URI));
+    mongoConnectionPromise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: MONGO_CONNECT_TIMEOUT_MS
+    }).then(function () {
+      console.log('[mongo] Conexion establecida correctamente.');
+      return mongoose.connection;
+    }).catch(function (error) {
+      mongoConnectionPromise = null;
+      console.error('[mongo] Error de conexion:', error && error.message ? error.message : error);
+      throw error;
+    });
+  }
+
+  return mongoConnectionPromise;
+};
+
+const ensureClientCollectionReady = async function () {
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI no configurada');
+  }
+
+  await connectToMongo();
+
+  if (!mongoInitializationPromise) {
+    mongoInitializationPromise = (async function () {
+      const existingCollections = await mongoose.connection.db.listCollections({ name: 'clients' }).toArray();
+
+      if (!existingCollections.length) {
+        console.log('[mongo] La coleccion clients no existe. Creandola ahora.');
+        await Client.createCollection();
+        console.log('[mongo] Coleccion clients creada correctamente.');
+      }
+
+      await Client.syncIndexes();
+      console.log('[mongo] Indices de clients verificados/sincronizados.');
+    })().catch(function (error) {
+      mongoInitializationPromise = null;
+      console.error('[mongo] Error preparando la coleccion clients:', error && error.message ? error.message : error);
+      throw error;
+    });
+  }
+
+  return mongoInitializationPromise;
+};
+
 // Connect to MongoDB
 if (MONGODB_URI) {
-  mongoose.connect(MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB');
-  })
-  .catch(err => {
-    console.error('Error connecting to MongoDB:', err);
+  mongoose.connection.on('connected', function () {
+    console.log('[mongo] Evento connected. Estado actual:', getMongoConnectionStateLabel());
+  });
+
+  mongoose.connection.on('error', function (error) {
+    console.error('[mongo] Evento error:', error && error.message ? error.message : error);
+  });
+
+  mongoose.connection.on('disconnected', function () {
+    console.warn('[mongo] Evento disconnected. Estado actual:', getMongoConnectionStateLabel());
+  });
+
+  connectToMongo().catch(function () {
+    return null;
   });
 } else {
   console.warn('MONGODB_URI no configurada. Se usaran clientes locales por defecto.');
@@ -98,9 +184,13 @@ app.post('/api/login', async (req, res) => {
 
   let user = null;
   try {
+    if (MONGODB_URI) {
+      await connectToMongo();
+    }
+
     user = await Client.findOne({ email: normalizedEmail });
   } catch (err) {
-    console.warn('MongoDB no disponible, usando cliente local:', err.message);
+    console.warn('[login] MongoDB no disponible, usando cliente local:', err.message);
   }
 
   if (!user) {
@@ -123,27 +213,37 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/register', async (req, res) => {
+  const requestId = 'register-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
   const fullName = String(req.body.fullName || '').trim();
   const email = String(req.body.email || '').trim().toLowerCase();
   const phone = String(req.body.phone || '').trim();
   const password = String(req.body.password || '');
 
+  console.log('[register][' + requestId + '] Solicitud recibida para:', email || '(sin correo)');
+
   if (!fullName || !email || !phone || !password) {
+    console.warn('[register][' + requestId + '] Validacion fallida: faltan campos requeridos.');
     return res.status(400).json({ message: 'Nombre, correo, teléfono y contraseña son requeridos.' });
   }
 
   if (password.length < 8) {
+    console.warn('[register][' + requestId + '] Validacion fallida: contraseña demasiado corta.');
     return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres.' });
   }
 
   if (!MONGODB_URI) {
+    console.error('[register][' + requestId + '] Registro bloqueado: MONGODB_URI no configurada.');
     return res.status(503).json({ message: 'El registro no está disponible porque MongoDB no está configurado.' });
   }
 
   try {
+    await ensureClientCollectionReady();
+    console.log('[register][' + requestId + '] Mongo listo. Estado:', getMongoConnectionStateLabel());
+
     const existingClient = await Client.findOne({ email }).select('_id');
 
     if (existingClient) {
+      console.warn('[register][' + requestId + '] Correo duplicado detectado:', email);
       return res.status(409).json({ message: 'Ya existe una cuenta registrada con ese correo.' });
     }
 
@@ -157,6 +257,8 @@ app.post('/api/register', async (req, res) => {
       plan: 'GRATUITO'
     });
 
+    console.log('[register][' + requestId + '] Cliente creado correctamente con _id:', String(createdClient._id));
+
     return res.status(201).json({
       success: true,
       message: 'Cuenta creada correctamente.',
@@ -165,10 +267,17 @@ app.post('/api/register', async (req, res) => {
     });
   } catch (error) {
     if (error && error.code === 11000) {
+      console.warn('[register][' + requestId + '] Error de indice unico para correo:', email);
       return res.status(409).json({ message: 'Ya existe una cuenta registrada con ese correo.' });
     }
 
-    console.error('Error creating client account:', error);
+    if (error && error.name === 'ValidationError') {
+      console.error('[register][' + requestId + '] Error de validacion:', error.message);
+      return res.status(400).json({ message: 'Los datos enviados no son válidos.' });
+    }
+
+    console.error('[register][' + requestId + '] Error creando cliente. Estado mongo:', getMongoConnectionStateLabel());
+    console.error('[register][' + requestId + '] Detalle:', error && error.stack ? error.stack : error);
     return res.status(500).json({ message: 'No se pudo crear la cuenta en este momento.' });
   }
 });
