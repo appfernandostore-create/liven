@@ -63,8 +63,13 @@ const DEFAULT_CLIENTS = [
   }
 ];
 
+const ensureUploadDirectories = function () {
+  fs.mkdirSync(PROFILE_DOCUMENT_UPLOADS_ROOT, { recursive: true });
+};
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    ensureUploadDirectories();
     cb(null, PROFILE_DOCUMENT_UPLOADS_ROOT);
   },
   filename: function (req, file, cb) {
@@ -73,6 +78,8 @@ const storage = multer.diskStorage({
     cb(null, uniqueName);
   }
 });
+
+ensureUploadDirectories();
 
 const uploadProfileDocument = multer({
   storage,
