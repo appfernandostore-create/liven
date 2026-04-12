@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live | Eventos</title>
+  <meta name="description" content="Crea y administra eventos desde el panel operativo de Live.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dashboard-body business-profile-body">
+  <header class="dashboard-page-header">
+    <div class="topbar-left">
+      <div class="topbar-brand">
+        <div class="brand-mark">L</div>
+        <div>
+          <strong>Live</strong>
+          <span>Portal Cliente</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-center">
+      <div class="search-input">
+        <span class="search-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10.5" cy="10.5" r="7.25" stroke="currentColor" stroke-width="1.8" />
+            <path d="M15.5 15.5L20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </span>
+        <input type="search" placeholder="Buscar en Live..." />
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button class="icon-button" aria-label="Notificaciones">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3C8.686 3 6 5.686 6 9v4.5L4 16v1h16v-1l-2-2.5V9c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.8" fill="none" />
+          <path d="M13.5 20c0 .828-.672 1.5-1.5 1.5S10.5 20.828 10.5 20" stroke="currentColor" stroke-width="1.8" fill="none" />
+        </svg>
+      </button>
+      <div class="profile-dropdown" data-global-profile-dropdown>
+        <button class="profile-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="profileDropdownMenu"></button>
+        <div class="dropdown-menu" id="profileDropdownMenu"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+      <nav class="sidebar-nav">
+        <a class="nav-link" href="dashboard.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/></svg></span>Dashboard</a>
+        <a class="nav-link active" href="events.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="5" width="17" height="16" rx="3"/><line x1="3.5" y1="9" x2="20.5" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Eventos</a>
+        <a class="nav-link" href="#" data-plan-feature="wallet"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8.5C4 7.11929 5.11929 6 6.5 6H17.5C18.8807 6 20 7.11929 20 8.5V15.5C20 16.8807 18.8807 18 17.5 18H6.5C5.11929 18 4 16.8807 4 15.5V8.5Z"/><path d="M15 12H20"/><circle cx="15.5" cy="12" r="1"/></svg></span>Wallet</a>
+        <a class="nav-link" href="#" data-plan-feature="analytics"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="18" x2="6" y2="12"/><line x1="11" y1="18" x2="11" y2="8"/><line x1="16" y1="18" x2="16" y2="4"/><line x1="21" y1="18" x2="21" y2="14"/></svg></span>Analytics</a>
+        <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>Notificaciones</a>
+        <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Configuración</a>
+      </nav>
+      <div class="sidebar-footer" data-global-plan-card></div>
+    </aside>
+
+    <main class="dashboard-content">
+      <section class="events-page">
+        <div class="events-header-row">
+          <div class="events-page-header dashboard-welcome">
+            <p class="dashboard-breadcrumb">Eventos</p>
+            <h1>Crea, organiza y gestiona todos los eventos de tus perfiles de negocio desde un solo lugar.</h1>
+          </div>
+
+          <div class="events-header-actions">
+            <button type="button" class="profile-continue-button events-primary-button" data-create-event-trigger>Crear evento</button>
+          </div>
+        </div>
+
+        <div class="events-filter-bar" data-event-tabs role="tablist" aria-label="Categorías de eventos">
+          <button type="button" class="event-filter-tab is-active" data-event-tab aria-selected="true">Todos</button>
+          <button type="button" class="event-filter-tab" data-event-tab aria-selected="false">Artísticos</button>
+          <button type="button" class="event-filter-tab" data-event-tab aria-selected="false">Convocatorias</button>
+          <button type="button" class="event-filter-tab" data-event-tab aria-selected="false">Culturales</button>
+          <button type="button" class="event-filter-tab" data-event-tab aria-selected="false">Sociales</button>
+          <button type="button" class="event-filter-tab" data-event-tab aria-selected="false">Deportivos</button>
+          <button type="button" class="event-filter-tab" data-event-tab aria-selected="false">Familiares</button>
+        </div>
+
+        <section class="events-empty-state">
+          <div class="events-empty-state-top">
+            <div class="events-availability-indicator events-availability-inline" data-events-availability>
+              <span class="events-availability-label">Límite del plan:</span>
+              <strong data-events-availability-value>Publicación ilimitada</strong>
+            </div>
+          </div>
+
+          <div class="events-empty-copy">
+            <h2>Aún no has creado eventos</h2>
+            <p>Comienza configurando tu primer evento para centralizar toda la gestión desde este panel.</p>
+          </div>
+
+          <button type="button" class="event-card event-card-create events-create-card" data-create-event-trigger aria-label="Crear evento">
+            <span class="event-card-create-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M5 12H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div class="event-card-copy">
+              <strong>Crear evento</strong>
+              <span>Configura un nuevo evento en minutos</span>
+            </div>
+          </button>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

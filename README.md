@@ -1,4 +1,4 @@
-# Liven
+# Live
 
 A Node.js application with MongoDB.
 

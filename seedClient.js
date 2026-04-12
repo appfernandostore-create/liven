@@ -6,30 +6,30 @@ const Client = require('./models/Client');
 const MONGODB_URI = process.env.MONGODB_URI;
 const seedClients = [
   {
-    fullName: 'Liven Premium+',
-    firstName: 'Liven',
+    fullName: 'Live Premium+',
+    firstName: 'Live',
     lastName: 'Premium+',
-    email: 'cliente@liven.com',
+    email: 'cliente@live.local',
     phone: '+57 300 000 0001',
     password: 'Cliente123!',
     role: 'CLIENTE',
     plan: 'PREMIUM_PLUS'
   },
   {
-    fullName: 'Liven Gratuito',
-    firstName: 'Liven',
+    fullName: 'Live Gratuito',
+    firstName: 'Live',
     lastName: 'Gratuito',
-    email: 'clienteG@liven.com',
+    email: 'clienteg@live.local',
     phone: '+57 300 000 0002',
     password: 'Cliente123!',
     role: 'CLIENTE',
     plan: 'GRATUITO'
   },
   {
-    fullName: 'Liven Premium',
-    firstName: 'Liven',
+    fullName: 'Live Premium',
+    firstName: 'Live',
     lastName: 'Premium',
-    email: 'clienteP@liven.com',
+    email: 'clientep@live.local',
     phone: '+57 300 000 0003',
     password: 'Cliente123!',
     role: 'CLIENTE',

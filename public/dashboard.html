@@ -3,91 +3,169 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liven | Dashboard Cliente</title>
+  <title>Live | Dashboard Cliente</title>
+  <meta name="description" content="Monitorea eventos, asistentes e ingresos desde el dashboard de Live.">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="dashboard-shell">
-    <aside class="dashboard-sidebar">
-      <div class="sidebar-brand">
+<body class="dashboard-body">
+  <header class="dashboard-page-header">
+    <div class="topbar-left">
+      <div class="topbar-brand">
         <div class="brand-mark">L</div>
         <div>
-          <h2>Liven</h2>
-          <p>Portal Cliente</p>
+          <strong>Live</strong>
+          <span>Portal Cliente</span>
         </div>
       </div>
+    </div>
+
+    <div class="topbar-center">
+      <div class="search-input">
+        <span class="search-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="10.5" cy="10.5" r="7.25" stroke="currentColor" stroke-width="1.8" />
+            <path d="M15.5 15.5L20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </span>
+        <input type="search" placeholder="Buscar en Live..." />
+      </div>
+    </div>
+
+    <div class="topbar-right">
+      <button class="icon-button" aria-label="Notificaciones">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3C8.686 3 6 5.686 6 9v4.5L4 16v1h16v-1l-2-2.5V9c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.8" fill="none" />
+          <path d="M13.5 20c0 .828-.672 1.5-1.5 1.5S10.5 20.828 10.5 20" stroke="currentColor" stroke-width="1.8" fill="none" />
+        </svg>
+      </button>
+      <div class="profile-dropdown" data-global-profile-dropdown>
+        <button class="profile-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="profileDropdownMenu"></button>
+        <div class="dropdown-menu" id="profileDropdownMenu"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
       <nav class="sidebar-nav">
-        <a class="nav-link active" href="#">Dashboard</a>
-        <a class="nav-link" href="#">Eventos</a>
-        <a class="nav-link" href="#">Analytics</a>
-        <a class="nav-link" href="#">Audiencia</a>
-        <a class="nav-link" href="#">Notificaciones</a>
-        <a class="nav-link" href="#">Configuración</a>
+        <a class="nav-link active" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/></svg></span>Dashboard</a>
+        <a class="nav-link" href="events.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="5" width="17" height="16" rx="3"/><line x1="3.5" y1="9" x2="20.5" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Eventos</a>
+        <a class="nav-link" href="#" data-plan-feature="wallet"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8.5C4 7.11929 5.11929 6 6.5 6H17.5C18.8807 6 20 7.11929 20 8.5V15.5C20 16.8807 18.8807 18 17.5 18H6.5C5.11929 18 4 16.8807 4 15.5V8.5Z"/><path d="M15 12H20"/><circle cx="15.5" cy="12" r="1"/></svg></span>Wallet</a>
+        <a class="nav-link" href="#" data-plan-feature="analytics"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="18" x2="6" y2="12"/><line x1="11" y1="18" x2="11" y2="8"/><line x1="16" y1="18" x2="16" y2="4"/><line x1="21" y1="18" x2="21" y2="14"/></svg></span>Analytics</a>
+        <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>Notificaciones</a>
+        <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Configuración</a>
       </nav>
-      <div class="sidebar-footer">
-        <div class="plan-card">
-          <strong>Plan Gratuito</strong>
-          <p>Actualiza para desbloquear todas las funciones premium.</p>
-          <button class="secondary-button">Actualizar Plan</button>
-        </div>
-      </div>
+      <div class="sidebar-footer" data-global-plan-card></div>
     </aside>
 
     <main class="dashboard-content">
-      <header class="dashboard-header">
-        <div>
-          <p class="dashboard-breadcrumb">Dashboard</p>
-          <h1>Gestiona y monitorea tus eventos</h1>
+      <section class="onboarding-banner" id="onboardingBanner" role="status" aria-live="polite">
+        <div class="onboarding-banner-copy">
+          <p class="onboarding-banner-title">Aún no has creado tu primer perfil de negocio.</p>
+          <p class="onboarding-banner-text">
+            Para publicar eventos, gestionar tus establecimientos y consultar analíticas dentro de Live, primero debes crear tu perfil.
+            <a href="business-profile.html" class="onboarding-banner-link" id="createProfileLink">Crear perfil ahora</a>
+          </p>
         </div>
-        <div class="dashboard-topbar">
-          <div class="search-input">
-            <span>🔍</span>
-            <input type="search" placeholder="Buscar en Liven..." />
-          </div>
-          <button class="icon-button">🔔</button>
-          <div class="profile-badge">
-            <span>LA</span>
-            <div>
-              <strong>Liven App</strong>
-              <span>Plan Premium</span>
-            </div>
-          </div>
-        </div>
-      </header>
+        <button class="onboarding-banner-close" id="onboardingBannerClose" type="button" aria-label="Cerrar aviso">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M6 6L18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </section>
+
+      <section class="dashboard-welcome">
+        <p class="dashboard-breadcrumb">Dashboard</p>
+        <h1>Gestiona y monitorea tus eventos de manera profesional</h1>
+      </section>
 
       <section class="stats-grid">
         <article class="stat-card">
-          <p class="stat-label">Eventos Activos</p>
+          <div class="stat-card-header">
+            <p class="stat-label">Eventos Activos</p>
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="5" width="16" height="14" rx="3" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M8 3V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M16 3V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M4 10H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
           <h2>0</h2>
           <p class="stat-small">0 eventos próximos</p>
         </article>
         <article class="stat-card light-green">
-          <p class="stat-label">Total Asistentes</p>
+          <div class="stat-card-header">
+            <p class="stat-label">Total Asistentes</p>
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 20V18C16 16.3431 14.6569 15 13 15H8C6.34315 15 5 16.3431 5 18V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="10.5" cy="9" r="3" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M19 20V18.5C19 17.1193 18.0597 15.9587 16.7852 15.623" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M14.5 6.5C15.6569 6.99746 16.5 8.14633 16.5 9.5C16.5 10.8537 15.6569 12.0025 14.5 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+          </div>
           <h2>0</h2>
           <p class="stat-small">Total de todos los eventos</p>
         </article>
         <article class="stat-card light-blue">
-          <p class="stat-label">Ingresos Generados</p>
+          <div class="stat-card-header">
+            <p class="stat-label">Ingresos Generados</p>
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M16.5 7.5C16.5 5.84315 14.4853 4.5 12 4.5C9.51472 4.5 7.5 5.84315 7.5 7.5C7.5 9.15685 9.51472 10.5 12 10.5C14.4853 10.5 16.5 11.8431 16.5 13.5C16.5 15.1569 14.4853 16.5 12 16.5C9.51472 16.5 7.5 15.1569 7.5 13.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
           <h2>$0</h2>
           <p class="stat-small">Ingresos totales</p>
         </article>
         <article class="stat-card light-purple">
-          <p class="stat-label">Tasa de Conversión</p>
+          <div class="stat-card-header">
+            <p class="stat-label">Tasa de Conversión</p>
+            <span class="stat-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 16L10 11L13 14L19 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M15 8H19V12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </div>
           <h2>0.0%</h2>
           <p class="stat-small">Promedio de ocupación</p>
         </article>
       </section>
 
-      <section class="quick-actions">
-        <div class="section-title">Acciones Rápidas</div>
-        <div class="actions-grid">
-          <button class="action-card">Crear Nuevo Evento</button>
-          <button class="action-card">Ver Mis Reservas</button>
-          <button class="action-card">Promociones</button>
-          <button class="action-card">Mensajes</button>
+      <section class="recent-events-section" aria-labelledby="recentEventsTitle">
+        <div class="recent-events-header">
+          <h2 class="recent-events-title" id="recentEventsTitle">Tus eventos recientes</h2>
+          <div class="events-availability-indicator events-availability-inline" data-events-availability>
+            <span class="events-availability-label">Límite del plan:</span>
+            <strong data-events-availability-value>Publicación ilimitada</strong>
+          </div>
+        </div>
+
+        <div class="recent-events-row">
+          <a href="#" class="event-card event-card-create" data-create-event-trigger aria-label="Crear evento">
+            <span class="event-card-create-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 5V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M5 12H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <div class="event-card-copy">
+              <strong>Crear evento</strong>
+              <span>Configura un nuevo evento en minutos</span>
+            </div>
+          </a>
         </div>
       </section>
+
     </main>
   </div>
+  <script src="script.js"></script>
 </body>
 </html>

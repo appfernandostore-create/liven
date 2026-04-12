@@ -5,11 +5,34 @@ document.addEventListener('DOMContentLoaded', function () {
   const ACTIVE_CLIENT_STORAGE_KEY = 'livenActiveClient';
   const REGISTERED_CLIENT_DRAFT_STORAGE_KEY = 'livenRegisteredClientDraft';
   const DEFAULT_ACTIVE_CLIENT = {
-    fullName: 'Liven Premium+',
-    email: 'cliente@liven.com',
+    fullName: 'Live Premium+',
+    email: 'cliente@live.local',
     role: 'CLIENTE',
     plan: 'PREMIUM_PLUS'
   };
+  const PROFILE_DOCUMENT_CONFIG = {
+    NATURAL: [
+      {
+        role: 'CEDULA_FRONT',
+        title: 'Cédula - frente',
+        description: 'Carga la cara frontal del documento de identidad en imagen o PDF.'
+      },
+      {
+        role: 'CEDULA_BACK',
+        title: 'Cédula - reverso',
+        description: 'Carga la cara posterior del documento de identidad en imagen o PDF.'
+      }
+    ],
+    LEGAL: [
+      {
+        role: 'RUT',
+        title: 'RUT del negocio',
+        description: 'Carga el RUT vigente de la empresa o establecimiento.'
+      }
+    ]
+  };
+  const ALLOWED_PROFILE_CITY = 'Barranquilla';
+  let selectedCategoryApi = null;
 
   const escapeHtml = function (value) {
     return String(value)
@@ -52,14 +75,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const normalizedPlan = String(plan || '').toUpperCase();
 
     if (normalizedPlan === 'GRATUITO') {
-      return '3';
+      return '3 días/mes';
     }
 
     if (normalizedPlan === 'PREMIUM_PLUS') {
-      return 'Ilimitado';
+      return 'Publicación ilimitada';
     }
 
-    return '30';
+    return '30 días/mes';
   };
 
   const getPlanTier = function (plan) {
@@ -100,7 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const getDisplayName = function (client) {
     const fullName = String(client.fullName || '').trim();
 
-    return fullName || 'Liven App';
+    return fullName || 'Live App';
   };
 
   const getInitials = function (client) {
@@ -148,8 +171,131 @@ document.addEventListener('DOMContentLoaded', function () {
     window.sessionStorage.removeItem(ACTIVE_CLIENT_STORAGE_KEY);
   };
 
+  const formatTaxId = function (taxId, verificationDigit) {
+    const normalizedTaxId = String(taxId || '').replace(/\D/g, '');
+    const normalizedVerificationDigit = String(verificationDigit || '').replace(/\D/g, '').slice(0, 1);
+
+    if (!normalizedTaxId && !normalizedVerificationDigit) {
+      return '';
+    }
+
+    if (!normalizedTaxId) {
+      return normalizedVerificationDigit;
+    }
+
+    if (!normalizedVerificationDigit) {
+      return normalizedTaxId;
+    }
+
+    return normalizedTaxId + '-' + normalizedVerificationDigit;
+  };
+
   const saveRegisteredClientDraft = function (client) {
     window.localStorage.setItem(REGISTERED_CLIENT_DRAFT_STORAGE_KEY, JSON.stringify(normalizeActiveClient(client)));
+  };
+
+  const getActiveClientEmail = function () {
+    return String(loadActiveClient().email || '').trim().toLowerCase();
+  };
+
+  const readApiResponse = async function (response) {
+    const text = await response.text();
+
+    if (!text) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(text);
+    } catch (error) {
+      return { message: text };
+    }
+  };
+
+  const requestJson = async function (url, options) {
+    const response = await fetch(url, options || {});
+    const result = await readApiResponse(response);
+
+    if (!response.ok) {
+      const error = new Error(result.message || 'La solicitud no se pudo completar.');
+      error.status = response.status;
+      error.result = result;
+      throw error;
+    }
+
+    return result;
+  };
+
+  const mapDocumentTypeValue = function (value) {
+    const normalizedValue = String(value || '').trim().toLowerCase();
+    const documentTypeMap = {
+      cc: 'CO_CEDULA_CIUDADANIA',
+      ti: 'CO_TARJETA_IDENTIDAD',
+      ce: 'CO_CEDULA_EXTRANJERIA',
+      pasaporte: 'PASSPORT',
+      ppt: 'CO_PPT',
+      pep: 'CO_PEP'
+    };
+
+    return documentTypeMap[normalizedValue] || normalizedValue.toUpperCase();
+  };
+
+  const getProfileIdFromUrl = function () {
+    return new URLSearchParams(window.location.search).get('profileId');
+  };
+
+  const normalizeBusinessCityValue = function (value) {
+    const normalizedValue = String(value || '').trim().toLowerCase();
+
+    if (!normalizedValue) {
+      return '';
+    }
+
+    return normalizedValue === 'barranquilla' ? ALLOWED_PROFILE_CITY : '';
+  };
+
+  const getVerificationStatusLabel = function (status) {
+    const normalizedStatus = String(status || '').trim().toUpperCase();
+
+    if (normalizedStatus === 'APPROVED') {
+      return 'Aprobado';
+    }
+
+    if (normalizedStatus === 'REJECTED') {
+      return 'Rechazado';
+    }
+
+    if (normalizedStatus === 'MANUAL_REVIEW') {
+      return 'Revisión manual';
+    }
+
+    if (normalizedStatus === 'PROCESSING') {
+      return 'En verificación';
+    }
+
+    return 'Pendiente';
+  };
+
+  const getVerificationStatusTheme = function (status) {
+    const normalizedStatus = String(status || '').trim().toUpperCase();
+
+    if (normalizedStatus === 'APPROVED') {
+      return 'is-approved';
+    }
+
+    if (normalizedStatus === 'REJECTED') {
+      return 'is-rejected';
+    }
+
+    if (normalizedStatus === 'MANUAL_REVIEW') {
+      return 'is-review';
+    }
+
+    if (normalizedStatus === 'PROCESSING') {
+      return 'is-processing';
+    }
+
+    return 'is-pending';
   };
 
   const getProfileTriggerMarkup = function (client) {
@@ -261,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '      <span class="plan-membership-status">Plan actual</span>',
         '    </div>',
         '  </div>',
-        '  <p>Actualiza para desbloquear todas las funciones premium y publicar mas eventos dentro de Liven.</p>',
+        '  <p>Actualiza para ampliar tus días de publicación mensuales y desbloquear funciones premium.</p>',
         '  <a href="plan-selection.html" class="secondary-button plan-card-action">Actualizar Plan</a>',
         '</div>'
       ].join('');
@@ -284,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '      <span class="plan-membership-status">Premium+ activo</span>',
         '    </div>',
         '  </div>',
-        '  <p>Tienes acceso completo a todas las funcionalidades de Liven.</p>',
+        '  <p>Incluye publicación ilimitada, analíticas completas y acceso total a la experiencia Live.</p>',
         '</div>'
       ].join('');
     }
@@ -304,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '      <span class="plan-membership-status">Premium activo</span>',
         '    </div>',
         '  </div>',
-        '  <p>Tienes acceso a venta de boleteria y hasta 30 eventos mensuales dentro de Liven.</p>',
+        '  <p>Incluye 30 días de publicación al mes, venta de boletería y mayor capacidad operativa en Live.</p>',
         '  <a href="plan-selection.html" class="secondary-button plan-card-action">Actualizar Plan</a>',
         '</div>'
       ].join('');
@@ -611,10 +757,118 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
+  if (onboardingBanner) {
+    const bannerTitle = onboardingBanner.querySelector('.onboarding-banner-title');
+    const bannerText = onboardingBanner.querySelector('.onboarding-banner-text');
+
+    requestJson('/api/business-profiles?clientEmail=' + encodeURIComponent(getActiveClientEmail())).then(function (result) {
+      const profiles = Array.isArray(result.profiles) ? result.profiles : [];
+
+      if (!profiles.length) {
+        return;
+      }
+
+      const latestProfile = profiles[0];
+      const latestStatusLabel = getVerificationStatusLabel(latestProfile.verificationStatus);
+
+      if (bannerTitle) {
+        bannerTitle.textContent = 'Ya tienes ' + profiles.length + ' perfil' + (profiles.length > 1 ? 'es' : '') + ' conectado' + (profiles.length > 1 ? 's' : '') + '.';
+      }
+
+      if (bannerText) {
+        bannerText.innerHTML = 'Tu perfil más reciente está en estado <strong>' + escapeHtml(latestStatusLabel) + '</strong>. Desde aquí puedes continuar con documentos o revisar su progreso en tiempo real. <a href="business-profile-details.html?profileId=' + encodeURIComponent(latestProfile.id) + '" class="onboarding-banner-link" id="createProfileLink">Gestionar perfil</a>';
+      }
+    }).catch(function () {
+      return null;
+    });
+  }
+
   const profileSetup = document.querySelector('[data-profile-setup]');
   if (profileSetup) {
     const profilePanels = Array.from(profileSetup.querySelectorAll('[data-profile-panel]'));
     const continueButton = document.getElementById('profileContinueButton');
+    const taxIdInput = profileSetup.querySelector('input[name="taxId"]');
+    const verificationDigitInput = profileSetup.querySelector('input[name="verificationDigit"]');
+    const taxIdFormattedInput = profileSetup.querySelector('input[name="taxIdFormatted"]');
+    const taxIdFormattedDisplay = profileSetup.querySelector('[data-tax-id-formatted]');
+
+    const setContinueLoading = function (isLoading) {
+      if (!continueButton) {
+        return;
+      }
+
+      continueButton.classList.toggle('is-loading', isLoading);
+      continueButton.textContent = isLoading ? 'Creando perfil...' : 'Crear perfil y continuar';
+
+      if (isLoading) {
+        continueButton.disabled = true;
+        return;
+      }
+
+      updateContinueState();
+    };
+
+    const syncTaxIdFields = function () {
+      const normalizedTaxId = String(taxIdInput && taxIdInput.value ? taxIdInput.value : '').replace(/\D/g, '');
+      const normalizedVerificationDigit = String(verificationDigitInput && verificationDigitInput.value ? verificationDigitInput.value : '').replace(/\D/g, '').slice(0, 1);
+      const formattedTaxId = formatTaxId(normalizedTaxId, normalizedVerificationDigit);
+
+      if (taxIdInput) {
+        taxIdInput.value = normalizedTaxId;
+      }
+
+      if (verificationDigitInput) {
+        verificationDigitInput.value = normalizedVerificationDigit;
+      }
+
+      if (taxIdFormattedInput) {
+        taxIdFormattedInput.value = formattedTaxId;
+      }
+
+      if (taxIdFormattedDisplay) {
+        taxIdFormattedDisplay.textContent = formattedTaxId || 'Completa NIT y DV';
+      }
+    };
+
+    const collectProfileSetupPayload = function () {
+      const activePanel = getActivePanel();
+      const clientEmail = getActiveClientEmail();
+
+      if (!activePanel) {
+        return null;
+      }
+
+      if (activePanel.dataset.profilePanel === 'juridica') {
+        const companyNameField = activePanel.querySelector('input[name="companyName"]');
+        const legalRepresentativeField = activePanel.querySelector('input[name="legalRepresentative"]');
+        const taxId = String(taxIdInput && taxIdInput.value ? taxIdInput.value : '').replace(/\D/g, '');
+        const verificationDigit = String(verificationDigitInput && verificationDigitInput.value ? verificationDigitInput.value : '').replace(/\D/g, '').slice(0, 1);
+
+        return {
+          clientEmail,
+          profileType: 'LEGAL',
+          companyName: String(companyNameField && companyNameField.value ? companyNameField.value : '').trim(),
+          taxId,
+          verificationDigit,
+          taxIdFormatted: formatTaxId(taxId, verificationDigit),
+          legalRepresentative: String(legalRepresentativeField && legalRepresentativeField.value ? legalRepresentativeField.value : '').trim()
+        };
+      }
+
+      const fullNameField = activePanel.querySelector('input[name="fullName"]');
+      const documentTypeField = activePanel.querySelector('select[name="documentType"]');
+      const documentNumberField = activePanel.querySelector('input[name="documentNumber"]');
+      const expeditionDateField = activePanel.querySelector('input[name="expeditionDate"]');
+
+      return {
+        clientEmail,
+        profileType: 'NATURAL',
+        fullName: String(fullNameField && fullNameField.value ? fullNameField.value : '').trim(),
+        documentTypeExpected: mapDocumentTypeValue(documentTypeField && documentTypeField.value ? documentTypeField.value : ''),
+        documentNumber: String(documentNumberField && documentNumberField.value ? documentNumberField.value : '').trim(),
+        expeditionDate: String(expeditionDateField && expeditionDateField.value ? expeditionDateField.value : '').trim()
+      };
+    };
 
     const getActivePanel = function () {
       return profilePanels.find(function (panel) {
@@ -686,25 +940,78 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
+    if (taxIdInput) {
+      taxIdInput.addEventListener('input', syncTaxIdFields);
+      taxIdInput.addEventListener('change', syncTaxIdFields);
+    }
+
+    if (verificationDigitInput) {
+      verificationDigitInput.addEventListener('input', syncTaxIdFields);
+      verificationDigitInput.addEventListener('change', syncTaxIdFields);
+    }
+
     if (continueButton) {
-      continueButton.addEventListener('click', function () {
+      continueButton.addEventListener('click', async function () {
         if (continueButton.disabled) {
           return;
         }
 
-        navigateWithPortalTransition('business-profile-details.html');
+        const payload = collectProfileSetupPayload();
+
+        if (!payload || !payload.clientEmail) {
+          alert('Primero debes iniciar sesión con un cliente válido para crear el perfil.');
+          return;
+        }
+
+        setContinueLoading(true);
+
+        try {
+          const result = await requestJson('/api/business-profiles', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          navigateWithPortalTransition('business-profile-details.html?profileId=' + encodeURIComponent(result.profile.id));
+        } catch (error) {
+          setContinueLoading(false);
+          alert(error.message || 'No se pudo crear el perfil.');
+          return;
+        }
       });
     }
 
+    syncTaxIdFields();
     setActivePanel('natural');
   }
 
   const categoryChips = document.querySelectorAll('[data-category-chip]');
   if (categoryChips.length) {
+    const getSelectedCategories = function () {
+      return Array.from(categoryChips).filter(function (chip) {
+        return chip.getAttribute('aria-pressed') === 'true';
+      }).map(function (chip) {
+        return String(chip.textContent || '').trim();
+      });
+    };
+
+    const setSelectedCategories = function (categories) {
+      const normalizedCategories = Array.isArray(categories)
+        ? categories.map(function (category) { return String(category || '').trim().toLowerCase(); })
+        : [];
+
+      categoryChips.forEach(function (chip) {
+        const chipLabel = String(chip.textContent || '').trim().toLowerCase();
+        const isSelected = normalizedCategories.includes(chipLabel);
+        chip.setAttribute('aria-pressed', String(isSelected));
+        chip.classList.toggle('is-selected', isSelected);
+      });
+
+      syncCategoryChipAvailability();
+    };
+
     const syncCategoryChipAvailability = function () {
-      const selectedCount = Array.from(categoryChips).filter(function (selectedChip) {
-        return selectedChip.getAttribute('aria-pressed') === 'true';
-      }).length;
+      const selectedCount = getSelectedCategories().length;
 
       categoryChips.forEach(function (chip) {
         const isSelected = chip.getAttribute('aria-pressed') === 'true';
@@ -732,14 +1039,295 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
+    selectedCategoryApi = {
+      getSelectedCategories,
+      setSelectedCategories,
+      syncCategoryChipAvailability
+    };
+
     syncCategoryChipAvailability();
   }
 
   const createBusinessProfileButton = document.getElementById('createBusinessProfileButton');
   if (createBusinessProfileButton) {
-    createBusinessProfileButton.addEventListener('click', function (event) {
+    const profileId = getProfileIdFromUrl();
+    const detailsPage = document.querySelector('[data-profile-details]');
+    const businessNameInput = detailsPage ? detailsPage.querySelector('input[name="businessName"]') : null;
+    const businessUsernameInput = detailsPage ? detailsPage.querySelector('input[name="businessUsername"]') : null;
+    const businessCitySelect = detailsPage ? detailsPage.querySelector('select[name="businessCity"]') : null;
+    const statusLabel = detailsPage ? detailsPage.querySelector('[data-profile-status-label]') : null;
+    const statusMessage = detailsPage ? detailsPage.querySelector('[data-profile-status-message]') : null;
+    const publishFlag = detailsPage ? detailsPage.querySelector('[data-profile-publish-flag]') : null;
+    const statusShell = detailsPage ? detailsPage.querySelector('[data-profile-status-shell]') : null;
+    const refreshStatusButton = detailsPage ? detailsPage.querySelector('[data-profile-refresh-status]') : null;
+    const documentsGrid = detailsPage ? detailsPage.querySelector('[data-profile-documents-grid]') : null;
+    let currentProfile = null;
+
+    const setProfileSaveLoading = function (isLoading) {
+      createBusinessProfileButton.disabled = isLoading;
+      createBusinessProfileButton.classList.toggle('is-loading', isLoading);
+      createBusinessProfileButton.textContent = isLoading ? 'Guardando perfil...' : 'Guardar perfil';
+    };
+
+    if (businessCitySelect) {
+      businessCitySelect.value = ALLOWED_PROFILE_CITY;
+    }
+
+    const setStatusRefreshLoading = function (isLoading) {
+      if (!refreshStatusButton) {
+        return;
+      }
+
+      refreshStatusButton.disabled = isLoading;
+      refreshStatusButton.textContent = isLoading ? 'Actualizando...' : 'Actualizar estado';
+    };
+
+    const renderProfileStatus = function (verificationPayload) {
+      if (!verificationPayload || !statusShell) {
+        return;
+      }
+
+      const verificationStatus = verificationPayload.verificationStatus || (currentProfile && currentProfile.verificationStatus) || 'PENDING';
+      const summary = verificationPayload.summary || {};
+      const missingDocuments = Array.isArray(summary.missingDocumentRoles) && summary.missingDocumentRoles.length
+        ? 'Faltan documentos: ' + summary.missingDocumentRoles.join(', ') + '.'
+        : '';
+      const rejectionReasons = Array.isArray(summary.rejectionReasons) && summary.rejectionReasons.length
+        ? ' Motivos: ' + summary.rejectionReasons.join(', ') + '.'
+        : '';
+      const baseMessage = verificationPayload.verificationCase && verificationPayload.verificationCase.summary
+        ? verificationPayload.verificationCase.summary
+        : missingDocuments || 'El estado del perfil se está leyendo en tiempo real desde el backend.';
+
+      statusShell.className = 'profile-status-shell ' + getVerificationStatusTheme(verificationStatus);
+
+      if (statusLabel) {
+        statusLabel.textContent = getVerificationStatusLabel(verificationStatus);
+      }
+
+      if (statusMessage) {
+        statusMessage.textContent = baseMessage + rejectionReasons;
+      }
+
+      if (publishFlag) {
+        publishFlag.textContent = verificationPayload.canPublishEvents
+          ? 'Habilitado para publicar eventos'
+          : 'Aún no habilitado para publicar eventos';
+        publishFlag.className = 'profile-status-flag ' + (verificationPayload.canPublishEvents ? 'is-approved' : 'is-pending');
+      }
+    };
+
+    const buildDocumentCardMarkup = function (documentConfig, currentDocument) {
+      const currentStatus = currentDocument ? String(currentDocument.verificationStatus || '').toUpperCase() : 'PENDING';
+      const allowUpload = !currentDocument || currentStatus === 'REJECTED' || currentStatus === 'MANUAL_REVIEW';
+      const actionLabel = currentDocument ? 'Volver a cargar' : 'Subir documento';
+      const helperText = currentDocument
+        ? (currentDocument.originalFileName || 'Documento cargado') + ' · ' + getVerificationStatusLabel(currentStatus)
+        : 'Aún no has subido este documento.';
+      const rejectionText = currentDocument && Array.isArray(currentDocument.rejectionReasons) && currentDocument.rejectionReasons.length
+        ? '<p class="document-card-reasons">Motivos: ' + escapeHtml(currentDocument.rejectionReasons.join(', ')) + '</p>'
+        : '';
+
+      return [
+        '<article class="document-upload-card ' + getVerificationStatusTheme(currentStatus) + '" data-document-card data-document-role="' + escapeHtml(documentConfig.role) + '"' + (currentDocument ? ' data-document-id="' + escapeHtml(currentDocument.id) + '"' : '') + '>',
+        '  <div class="document-upload-card-head">',
+        '    <div>',
+        '      <strong>' + escapeHtml(documentConfig.title) + '</strong>',
+        '      <p>' + escapeHtml(documentConfig.description) + '</p>',
+        '    </div>',
+        '    <span class="document-status-pill ' + getVerificationStatusTheme(currentStatus) + '">' + escapeHtml(getVerificationStatusLabel(currentStatus)) + '</span>',
+        '  </div>',
+        '  <p class="document-card-file">' + escapeHtml(helperText) + '</p>',
+           rejectionText,
+        '  <label class="document-file-picker">',
+        '    <span>Seleccionar archivo</span>',
+        '    <input type="file" accept="image/png,image/jpeg,image/webp,application/pdf">',
+        '  </label>',
+        '  <button type="button" class="secondary-button document-upload-action"' + (allowUpload ? '' : ' disabled') + '>' + actionLabel + '</button>',
+        '  <p class="field-helper-text">Formatos permitidos: JPG, PNG, WEBP o PDF.</p>',
+        '</article>'
+      ].join('');
+    };
+
+    const renderDocumentCards = function (profile) {
+      if (!documentsGrid || !profile) {
+        return;
+      }
+
+      const documentConfig = PROFILE_DOCUMENT_CONFIG[String(profile.profileType || '').toUpperCase()] || [];
+      const currentDocuments = Array.isArray(profile.documents) ? profile.documents : [];
+
+      documentsGrid.innerHTML = documentConfig.map(function (config) {
+        const currentDocument = currentDocuments.find(function (document) {
+          return document.documentRole === config.role;
+        }) || null;
+
+        return buildDocumentCardMarkup(config, currentDocument);
+      }).join('');
+
+      documentsGrid.querySelectorAll('[data-document-card]').forEach(function (card) {
+        const fileInput = card.querySelector('input[type="file"]');
+        const uploadButton = card.querySelector('.document-upload-action');
+        const documentRole = card.dataset.documentRole;
+        const documentId = card.dataset.documentId;
+
+        if (!fileInput || !uploadButton || uploadButton.disabled) {
+          return;
+        }
+
+        uploadButton.addEventListener('click', async function () {
+          const selectedFile = fileInput.files && fileInput.files[0];
+
+          if (!selectedFile) {
+            alert('Selecciona primero un archivo para ' + documentRole + '.');
+            return;
+          }
+
+          uploadButton.disabled = true;
+          uploadButton.textContent = 'Subiendo...';
+
+          const formData = new FormData();
+          formData.append('clientEmail', getActiveClientEmail());
+          formData.append('documentRole', documentRole);
+          formData.append('document', selectedFile);
+
+          try {
+            const endpoint = documentId && (card.classList.contains('is-rejected') || card.classList.contains('is-review'))
+              ? '/api/business-profiles/' + encodeURIComponent(profileId) + '/documents/' + encodeURIComponent(documentId) + '/reupload'
+              : '/api/business-profiles/' + encodeURIComponent(profileId) + '/documents';
+            await requestJson(endpoint, {
+              method: 'POST',
+              body: formData
+            });
+
+            await refreshProfileData();
+          } catch (error) {
+            uploadButton.disabled = false;
+            uploadButton.textContent = documentId ? 'Volver a cargar' : 'Subir documento';
+            alert(error.message || 'No se pudo subir el documento.');
+          }
+        });
+      });
+    };
+
+    const populateProfileDetails = function (profile) {
+      if (!profile) {
+        return;
+      }
+
+      currentProfile = profile;
+
+      if (businessNameInput) {
+        businessNameInput.value = profile.businessName || '';
+      }
+
+      if (businessUsernameInput) {
+        businessUsernameInput.value = profile.businessUsername || '';
+      }
+
+      if (businessCitySelect) {
+        businessCitySelect.value = normalizeBusinessCityValue(profile.businessCity) || ALLOWED_PROFILE_CITY;
+      }
+
+      if (selectedCategoryApi) {
+        selectedCategoryApi.setSelectedCategories(profile.categories || []);
+      }
+
+      renderDocumentCards(profile);
+    };
+
+    var refreshProfileData = async function () {
+      if (!profileId) {
+        return;
+      }
+
+      setStatusRefreshLoading(true);
+
+      try {
+        const clientEmail = getActiveClientEmail();
+        const [profileResult, statusResult] = await Promise.all([
+          requestJson('/api/business-profiles/' + encodeURIComponent(profileId) + '?clientEmail=' + encodeURIComponent(clientEmail)),
+          requestJson('/api/business-profiles/' + encodeURIComponent(profileId) + '/verification-status?clientEmail=' + encodeURIComponent(clientEmail))
+        ]);
+
+        populateProfileDetails(profileResult.profile);
+        renderProfileStatus(statusResult);
+      } catch (error) {
+        alert(error.message || 'No se pudo cargar el perfil.');
+      } finally {
+        setStatusRefreshLoading(false);
+      }
+    };
+
+    if (!profileId) {
+      alert('Primero debes crear el perfil base antes de completar sus detalles.');
+      navigateWithPortalTransition('business-profile.html');
+      return;
+    }
+
+    if (refreshStatusButton) {
+      refreshStatusButton.addEventListener('click', function () {
+        refreshProfileData();
+      });
+    }
+
+    createBusinessProfileButton.addEventListener('click', async function (event) {
       event.preventDefault();
+
+      const clientEmail = getActiveClientEmail();
+      if (!clientEmail) {
+        alert('No hay un cliente activo para actualizar este perfil.');
+        return;
+      }
+
+      setProfileSaveLoading(true);
+
+      try {
+        const selectedBusinessCity = normalizeBusinessCityValue(businessCitySelect ? businessCitySelect.value : '');
+
+        if (selectedBusinessCity !== ALLOWED_PROFILE_CITY) {
+          alert('Por ahora solo puedes seleccionar Barranquilla como ciudad del perfil.');
+          return;
+        }
+
+        const payload = {
+          clientEmail,
+          businessName: businessNameInput ? businessNameInput.value : '',
+          businessUsername: businessUsernameInput ? businessUsernameInput.value : '',
+          businessCity: selectedBusinessCity,
+          categories: selectedCategoryApi ? selectedCategoryApi.getSelectedCategories() : []
+        };
+
+        if (currentProfile && currentProfile.profileType === 'LEGAL' && currentProfile.legalEntity) {
+          payload.companyName = currentProfile.legalEntity.companyName;
+          payload.taxId = currentProfile.legalEntity.taxId;
+          payload.verificationDigit = currentProfile.legalEntity.verificationDigit;
+          payload.legalRepresentative = currentProfile.legalEntity.legalRepresentative;
+        }
+
+        if (currentProfile && currentProfile.profileType === 'NATURAL' && currentProfile.naturalPerson) {
+          payload.fullName = currentProfile.naturalPerson.fullName;
+          payload.documentTypeExpected = currentProfile.naturalPerson.documentTypeExpected;
+          payload.documentNumber = currentProfile.naturalPerson.documentNumber;
+          payload.expeditionDate = currentProfile.naturalPerson.expeditionDate;
+        }
+
+        const result = await requestJson('/api/business-profiles/' + encodeURIComponent(profileId), {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        currentProfile = result.profile;
+        await refreshProfileData();
+      } catch (error) {
+        alert(error.message || 'No se pudo guardar el perfil.');
+      } finally {
+        setProfileSaveLoading(false);
+      }
     });
+
+    refreshProfileData();
   }
 
   const createEventCard = document.querySelector('.event-card-create[href="#"]');
@@ -752,8 +1340,21 @@ document.addEventListener('DOMContentLoaded', function () {
   const createEventTriggers = document.querySelectorAll('[data-create-event-trigger]');
   if (createEventTriggers.length) {
     createEventTriggers.forEach(function (trigger) {
-      trigger.addEventListener('click', function (event) {
+      trigger.addEventListener('click', async function (event) {
         event.preventDefault();
+
+        try {
+          await requestJson('/api/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              clientEmail: getActiveClientEmail(),
+              title: 'Evento de prueba desde UI'
+            })
+          });
+        } catch (error) {
+          alert(error.message || 'Aún no puedes crear eventos con tu estado actual.');
+        }
       });
     });
   }

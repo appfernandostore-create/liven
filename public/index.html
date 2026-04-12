@@ -3,62 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liven | Inicia sesión</title>
+  <title>Live | Inicia sesión</title>
+  <meta name="description" content="Accede a Live para gestionar eventos, asistentes y resultados desde un solo lugar.">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="login-body">
   <div class="page-shell">
     <header class="topbar">
       <div class="topbar-left">
         <div class="brand">
           <div class="brand-mark">L</div>
-          <span>Liven</span>
+          <span>Live</span>
         </div>
         <a href="#" class="topbar-link">Ayuda</a>
       </div>
     </header>
 
-    <main class="hero-layout">
-      <section class="hero-card">
-        <div class="hero-copy">
-          <h1>¡Hola!</h1>
-          <p>Nos encanta tenerte de nuevo por aquí</p>
+    <main class="hero-layout login-layout">
+      <section class="login-showcase">
+        <div class="login-showcase-content">
+          <span class="login-eyebrow">Live Platform</span>
+          <h1>Transforma tus eventos en experiencias <span>memorables</span></h1>
+          <p>Centraliza registros, asistentes y resultados en una experiencia clara, moderna y lista para crecer con cada evento.</p>
         </div>
-
-        <form class="login-form" id="loginForm">
-          <label>
-            <span>Correo electrónico</span>
-            <input type="email" name="email" placeholder="tucorreo@ejemplo.com" required />
-          </label>
-
-          <label>
-            <span>Contraseña</span>
-            <div class="password-field">
-              <input type="password" name="password" placeholder="••••••••" required />
-              <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
-            </div>
-          </label>
-
-          <div class="forgot-link">
-            <a href="#">¿Olvidaste tu contraseña?</a>
-          </div>
-
-          <button type="submit" class="primary-button">Continuar</button>
-
-          <div class="register-prompt">¿Aún no tienes cuenta? <a href="register.html">Regístrate ahora</a></div>
-
-          <div class="divider"><span>o continúa con</span></div>
-
-          <div class="social-grid">
-            <button type="button" class="social-button google">Continuar con Google</button>
-            <button type="button" class="social-button apple">Continuar con Apple</button>
-          </div>
-        </form>
-
       </section>
 
+      <section class="login-panel">
+        <div class="hero-card login-card">
+          <div class="hero-copy login-copy">
+            <h1>Bienvenido de vuelta</h1>
+            <p>Inicia sesión para administrar tus eventos, asistentes y reportes desde un solo lugar.</p>
+          </div>
+
+          <form class="login-form" id="loginForm">
+            <label>
+              <span>Correo electrónico</span>
+              <div class="input-with-icon">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M5 8L12 13L19 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <input type="email" name="email" placeholder="tucorreo@ejemplo.com" required />
+              </div>
+            </label>
+
+            <label>
+              <span>Contraseña</span>
+              <div class="password-field input-with-icon">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="11" width="16" height="9" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M8 11V8.5C8 6.01472 10.0147 4 12.5 4C14.9853 4 17 6.01472 17 8.5V11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <input type="password" name="password" placeholder="••••••••" required />
+                <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
+              </div>
+            </label>
+
+            <div class="forgot-link">
+              <a href="#">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit" class="primary-button login-submit">
+              <span>Inicia sesión</span>
+              <span class="button-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 12H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+
+            <div class="register-prompt">¿Aún no tienes cuenta? <a href="register.html">Regístrate ahora</a></div>
+
+            <div class="divider"><span>o continúa con</span></div>
+
+            <div class="social-grid">
+              <button type="button" class="social-button google">
+                <span class="social-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21.805 12.23C21.805 11.47 21.736 10.915 21.587 10.338H12.203V13.97H17.71C17.599 14.873 16.997 16.233 15.659 17.148L15.64 17.27L18.607 19.522L18.813 19.542C20.709 17.835 21.805 15.322 21.805 12.23Z" fill="currentColor"/>
+                    <path d="M12.203 21.75C14.901 21.75 17.164 20.883 18.813 19.542L15.659 17.148C14.815 17.725 13.684 18.129 12.203 18.129C9.56093 18.129 7.31695 16.422 6.51744 14.064L6.39989 14.073L3.31482 16.412L3.27435 16.522C4.911 19.695 8.30349 21.75 12.203 21.75Z" fill="currentColor"/>
+                    <path d="M6.51747 14.064C6.30642 13.487 6.18343 12.867 6.18343 12.23C6.18343 11.592 6.30642 10.973 6.50692 10.396L6.50132 10.265L3.37747 7.8877L3.27438 7.93781C2.59828 9.25696 2.21875 10.7347 2.21875 12.23C2.21875 13.7252 2.59828 15.2028 3.27438 16.522L6.51747 14.064Z" fill="currentColor"/>
+                    <path d="M12.203 6.33086C14.07 6.33086 15.324 7.12139 16.037 7.78201L18.882 5.07657C17.154 3.58134 14.901 2.71094 12.203 2.71094C8.30349 2.71094 4.911 4.76516 3.27435 7.93779L6.50689 10.396C7.31695 8.03846 9.56093 6.33086 12.203 6.33086Z" fill="currentColor"/>
+                  </svg>
+                </span>
+                <span>Google</span>
+              </button>
+              <button type="button" class="social-button apple">
+                <span class="social-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15.2163 3C15.305 3.82393 14.9637 4.62824 14.4579 5.21317C13.9275 5.81909 13.0486 6.28584 12.1948 6.21447C12.0895 5.41809 12.4477 4.58762 12.9442 4.02077C13.5009 3.38161 14.4579 2.91486 15.2163 3ZM18.1312 17.2369C17.6892 18.1717 17.4786 18.5882 16.9097 19.4097C16.1178 20.5584 14.9959 21.9915 13.6032 22C12.3665 22.0111 12.0462 21.2004 10.3671 21.2098C8.68801 21.2188 8.33694 22.0152 7.10059 22.0041C5.70785 21.9927 4.64602 20.6994 3.85412 19.551C1.63913 16.3433 1.41051 12.579 2.77478 10.4828C3.74383 8.99338 5.27372 8.11793 6.71183 8.11793C8.17662 8.11793 9.09772 8.93096 10.3491 8.93096C11.5625 8.93096 12.3024 8.11682 13.9738 8.11682C15.2544 8.11682 16.6114 8.81484 17.5784 10.0192C14.4123 11.7493 14.9269 16.263 18.1312 17.2369Z"/>
+                  </svg>
+                </span>
+                <span>Apple</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
     </main>
   </div>
+
+  <div class="auth-transition" aria-hidden="true">
+    <div class="auth-transition-card">
+      <span class="auth-spinner"></span>
+      <strong>Iniciando sesión</strong>
+      <p>Estamos preparando tu dashboard.</p>
+    </div>
+  </div>
+
   <script src="script.js"></script>
 </body>
 </html>

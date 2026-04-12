@@ -3,64 +3,103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Liven | Regístrate</title>
+  <title>Live | Regístrate</title>
+  <meta name="description" content="Crea tu cuenta en Live y empieza a administrar tus eventos con una experiencia clara y profesional.">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="register-body">
   <div class="page-shell">
     <header class="topbar">
       <div class="topbar-left">
         <div class="brand">
           <div class="brand-mark">L</div>
-          <span>Liven</span>
+          <span>Live</span>
         </div>
         <a href="index.html" class="topbar-link">Regresar</a>
       </div>
     </header>
 
-    <main class="hero-layout">
-      <section class="hero-card">
-        <div class="hero-copy">
-          <h1>Regístrate</h1>
-          <p>Completa tus datos para crear tu cuenta y empezar a descubrir experiencias.</p>
+    <main class="hero-layout login-layout">
+      <section class="login-showcase register-showcase">
+        <div class="login-showcase-content">
+          <span class="login-eyebrow">Nuevo en Live</span>
+          <h1>Crea tu cuenta y organiza cada detalle con claridad</h1>
+          <p>Registra tu información en un flujo simple, moderno y listo para ayudarte a gestionar experiencias profesionales desde el primer día.</p>
         </div>
+      </section>
 
-        <form class="register-form">
-          <label>
-            <span>Nombre</span>
-            <input type="text" name="firstName" placeholder="Nombre" required />
-          </label>
+      <section class="login-panel">
+        <div class="hero-card login-card register-card">
+          <div class="hero-copy login-copy">
+            <h1>Crea tu cuenta</h1>
+            <p>Completa tus datos para empezar a administrar tus eventos con la misma experiencia limpia y moderna de Live.</p>
+          </div>
 
-          <label>
-            <span>Apellido</span>
-            <input type="text" name="lastName" placeholder="Apellido" required />
-          </label>
+          <form class="register-form">
+            <label>
+              <span>Nombre completo</span>
+              <div class="input-with-icon">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="8" r="3.25" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M5 19C5 15.6863 8.13401 13 12 13C15.866 13 19 15.6863 19 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <input type="text" name="fullName" placeholder="Ej. Live Studio" required />
+              </div>
+            </label>
 
-          <label>
-            <span>Correo electrónico</span>
-            <input type="email" name="email" placeholder="tucorreo@ejemplo.com" required />
-          </label>
+            <label>
+              <span>Correo electrónico</span>
+              <div class="input-with-icon">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M5 8L12 13L19 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <input type="email" name="email" placeholder="tucorreo@ejemplo.com" required />
+              </div>
+            </label>
 
-          <label>
-            <span>Contraseña</span>
-            <div class="password-field">
-              <input type="password" name="password" placeholder="••••••••" required />
-              <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
-            </div>
-          </label>
+            <label>
+              <span>Número de teléfono</span>
+              <div class="input-with-icon">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 4H9L11 9L8.5 10.5C9.55738 12.6431 11.3569 14.4426 13.5 15.5L15 13L20 15V19C20 19.5523 19.5523 20 19 20C10.7157 20 4 13.2843 4 5C4 4.44772 4.44772 4 5 4Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                <input type="tel" name="phone" placeholder="+54 9 11 1234 5678" required />
+              </div>
+            </label>
 
-          <label>
-            <span>Verificar contraseña</span>
-            <div class="password-field">
-              <input type="password" name="confirmPassword" placeholder="••••••••" required />
-              <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
-            </div>
-          </label>
+            <label>
+              <span>Contraseña</span>
+              <div class="password-field input-with-icon">
+                <span class="input-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="11" width="16" height="9" rx="2.5" stroke="currentColor" stroke-width="1.8"/>
+                    <path d="M8 11V8.5C8 6.01472 10.0147 4 12.5 4C14.9853 4 17 6.01472 17 8.5V11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </span>
+                <input type="password" name="password" placeholder="••••••••" required />
+                <button type="button" class="eye-toggle" aria-label="Mostrar contraseña">👁</button>
+              </div>
+            </label>
 
-          <button type="submit" class="primary-button">Crear cuenta</button>
-          <a href="index.html" class="secondary-button back-button">Volver</a>
-          <div class="form-caption">¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a></div>
-        </form>
+            <button type="submit" class="primary-button login-submit">
+              <span>Crear cuenta</span>
+              <span class="button-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 12H19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  <path d="M12 5L19 12L12 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+            <div class="form-caption">¿Ya tienes cuenta? <a href="index.html">Inicia sesión</a></div>
+          </form>
+        </div>
       </section>
     </main>
   </div>
@@ -68,7 +107,7 @@
   <div class="modal-overlay hidden" id="successModal">
     <div class="modal-card">
       <h2>Cuenta creada</h2>
-      <p>Tu cuenta se ha creado correctamente. Bienvenido a Liven.</p>
+      <p>Tu cuenta se ha creado correctamente. Bienvenido a Live.</p>
       <button id="modalClose" class="primary-button">Continuar</button>
     </div>
   </div>
