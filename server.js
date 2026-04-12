@@ -67,22 +67,10 @@ const ensureUploadDirectories = function () {
   fs.mkdirSync(PROFILE_DOCUMENT_UPLOADS_ROOT, { recursive: true });
 };
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    ensureUploadDirectories();
-    cb(null, PROFILE_DOCUMENT_UPLOADS_ROOT);
-  },
-  filename: function (req, file, cb) {
-    const safeExtension = path.extname(file.originalname || '').toLowerCase().replace(/[^.a-z0-9]/g, '') || '.bin';
-    const uniqueName = Date.now() + '-' + crypto.randomBytes(8).toString('hex') + safeExtension;
-    cb(null, uniqueName);
-  }
-});
-
 ensureUploadDirectories();
 
 const uploadProfileDocument = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: MAX_DOCUMENT_SIZE_BYTES },
   fileFilter: function (req, file, cb) {
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
@@ -507,6 +495,22 @@ const computeFileChecksum = function (filePath) {
   const hash = crypto.createHash('sha256');
   hash.update(fs.readFileSync(filePath));
   return hash.digest('hex');
+};
+
+const persistUploadedDocumentFile = function (file) {
+  ensureUploadDirectories();
+
+  const safeExtension = path.extname(file.originalname || '').toLowerCase().replace(/[^.a-z0-9]/g, '') || '.bin';
+  const uniqueName = Date.now() + '-' + crypto.randomBytes(8).toString('hex') + safeExtension;
+  const absoluteFilePath = path.join(PROFILE_DOCUMENT_UPLOADS_ROOT, uniqueName);
+
+  fs.writeFileSync(absoluteFilePath, file.buffer);
+
+  return {
+    absoluteFilePath,
+    relativeStorageKey: path.relative(__dirname, absoluteFilePath).replace(/\\/g, '/'),
+    publicUrl: '/uploads/' + path.relative(UPLOADS_ROOT, absoluteFilePath).replace(/\\/g, '/')
+  };
 };
 
 const applyAutomaticVerificationWithFallback = async function (profileDocument, businessProfile) {
@@ -1047,6 +1051,7 @@ app.get('/api/business-profiles/:profileId', async function (req, res) {
 
 app.post('/api/business-profiles/:profileId/documents', uploadProfileDocument.single('document'), async function (req, res) {
   let createdDocument = null;
+  let storedFilePath = null;
 
   try {
     const client = await resolveClientFromRequest(req);
@@ -1056,7 +1061,6 @@ app.post('/api/business-profiles/:profileId/documents', uploadProfileDocument.si
     const documentRole = String(req.body.documentRole || '').trim().toUpperCase();
 
     if (!DOCUMENT_ROLES.includes(documentRole)) {
-      removeUploadedFileSilently(req.file && req.file.path);
       return res.status(400).json({ message: 'documentRole no es válido.' });
     }
 
@@ -1066,7 +1070,6 @@ app.post('/api/business-profiles/:profileId/documents', uploadProfileDocument.si
 
     const requiredDocumentRoles = getRequiredDocumentRoles(businessProfile.profileType);
     if (!requiredDocumentRoles.includes(documentRole)) {
-      removeUploadedFileSilently(req.file.path);
       return res.status(400).json({ message: 'Ese tipo de documento no corresponde al perfil seleccionado.' });
     }
 
@@ -1082,14 +1085,15 @@ app.post('/api/business-profiles/:profileId/documents', uploadProfileDocument.si
       await existingActiveDocument.save();
     }
 
-    const checksum = computeFileChecksum(req.file.path);
-    const relativeStorageKey = path.relative(__dirname, req.file.path).replace(/\\/g, '/');
+    const storedFile = persistUploadedDocumentFile(req.file);
+    storedFilePath = storedFile.absoluteFilePath;
+    const checksum = computeFileChecksum(storedFile.absoluteFilePath);
     const profileDocument = await ProfileDocument.create({
       businessProfileId: businessProfile._id,
       ownerClientId: client._id,
       documentRole,
-      storageKey: relativeStorageKey,
-      publicUrl: '/uploads/' + path.relative(UPLOADS_ROOT, req.file.path).replace(/\\/g, '/'),
+      storageKey: storedFile.relativeStorageKey,
+      publicUrl: storedFile.publicUrl,
       originalFileName: req.file.originalname,
       mimeType: req.file.mimetype,
       sizeBytes: req.file.size,
@@ -1122,7 +1126,7 @@ app.post('/api/business-profiles/:profileId/documents', uploadProfileDocument.si
     });
   } catch (error) {
     if (!createdDocument) {
-      removeUploadedFileSilently(req.file && req.file.path);
+      removeUploadedFileSilently(storedFilePath);
     }
     const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({ message: error.message || 'No se pudo cargar el documento.' });
@@ -1131,6 +1135,7 @@ app.post('/api/business-profiles/:profileId/documents', uploadProfileDocument.si
 
 app.post('/api/business-profiles/:profileId/documents/:documentId/reupload', uploadProfileDocument.single('document'), async function (req, res) {
   let replacementDocument = null;
+  let storedFilePath = null;
 
   try {
     const client = await resolveClientFromRequest(req);
@@ -1145,12 +1150,10 @@ app.post('/api/business-profiles/:profileId/documents/:documentId/reupload', upl
     });
 
     if (!originalDocument) {
-      removeUploadedFileSilently(req.file && req.file.path);
       return res.status(404).json({ message: 'No se encontró el documento a reemplazar.' });
     }
 
     if (!['REJECTED', 'MANUAL_REVIEW'].includes(originalDocument.verificationStatus)) {
-      removeUploadedFileSilently(req.file && req.file.path);
       return res.status(409).json({ message: 'Solo se pueden volver a subir documentos rechazados o en revisión manual.' });
     }
 
@@ -1161,13 +1164,15 @@ app.post('/api/business-profiles/:profileId/documents/:documentId/reupload', upl
     originalDocument.activeVersion = false;
     await originalDocument.save();
 
-    const checksum = computeFileChecksum(req.file.path);
+    const storedFile = persistUploadedDocumentFile(req.file);
+    storedFilePath = storedFile.absoluteFilePath;
+    const checksum = computeFileChecksum(storedFile.absoluteFilePath);
     replacementDocument = await ProfileDocument.create({
       businessProfileId: businessProfile._id,
       ownerClientId: client._id,
       documentRole: originalDocument.documentRole,
-      storageKey: path.relative(__dirname, req.file.path).replace(/\\/g, '/'),
-      publicUrl: '/uploads/' + path.relative(UPLOADS_ROOT, req.file.path).replace(/\\/g, '/'),
+      storageKey: storedFile.relativeStorageKey,
+      publicUrl: storedFile.publicUrl,
       originalFileName: req.file.originalname,
       mimeType: req.file.mimetype,
       sizeBytes: req.file.size,
@@ -1193,7 +1198,7 @@ app.post('/api/business-profiles/:profileId/documents/:documentId/reupload', upl
     });
   } catch (error) {
     if (!replacementDocument) {
-      removeUploadedFileSilently(req.file && req.file.path);
+      removeUploadedFileSilently(storedFilePath);
     }
     const statusCode = error.statusCode || 500;
     return res.status(statusCode).json({ message: error.message || 'No se pudo reemplazar el documento.' });
