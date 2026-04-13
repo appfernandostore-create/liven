@@ -379,6 +379,7 @@ const buildBusinessProfileResponse = function (profile, verificationCase, docume
     displayName: profile.displayName,
     businessName: profile.businessName,
     businessUsername: profile.businessUsername,
+    profileImageUrl: profile.profileImageUrl || '',
     businessCity: profile.businessCity,
     categories: profile.categories || [],
     naturalPerson: profile.naturalPerson || null,
@@ -876,6 +877,7 @@ app.post('/api/business-profiles', async function (req, res) {
     const categories = normalizeCategories(req.body.categories || req.body.selectedCategories);
     const businessName = String(req.body.businessName || req.body.displayName || '').trim();
     const businessUsername = String(req.body.businessUsername || '').trim();
+    const profileImageUrl = String(req.body.profileImageUrl || '').trim();
     const businessCity = normalizeBusinessCity(req.body.businessCity);
 
     if (req.body.businessCity && !businessCity) {
@@ -905,6 +907,7 @@ app.post('/api/business-profiles', async function (req, res) {
       profileType,
       businessName,
       businessUsername,
+      profileImageUrl,
       businessCity,
       categories,
       naturalPerson,
@@ -942,6 +945,7 @@ app.patch('/api/business-profiles/:profileId', async function (req, res) {
     const categories = normalizeCategories(req.body.categories || req.body.selectedCategories || businessProfile.categories);
     const businessName = String(req.body.businessName || businessProfile.businessName || '').trim();
     const businessUsername = String(req.body.businessUsername || businessProfile.businessUsername || '').trim();
+    const profileImageUrl = String(typeof req.body.profileImageUrl === 'string' ? req.body.profileImageUrl : businessProfile.profileImageUrl || '').trim();
     const hasBusinessCity = Object.prototype.hasOwnProperty.call(req.body || {}, 'businessCity');
     const normalizedBusinessCity = hasBusinessCity ? normalizeBusinessCity(req.body.businessCity) : businessProfile.businessCity;
 
@@ -951,6 +955,7 @@ app.patch('/api/business-profiles/:profileId', async function (req, res) {
 
     businessProfile.businessName = businessName;
     businessProfile.businessUsername = businessUsername;
+    businessProfile.profileImageUrl = profileImageUrl;
     businessProfile.businessCity = normalizedBusinessCity;
     businessProfile.categories = categories;
 
