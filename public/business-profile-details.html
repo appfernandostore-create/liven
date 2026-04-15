@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Live | Definir perfil de negocio</title>
   <meta name="description" content="Define cómo se verá tu negocio en Live y completa su perfil público.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260413c">
 </head>
 <body class="dashboard-body business-profile-body">
   <header class="dashboard-page-header">
     <div class="topbar-left">
-      <div class="topbar-brand">
+      <div class="topbar-brand topbar-brand-static">
         <div class="brand-mark">L</div>
         <div>
           <strong>Live</strong>
@@ -38,73 +38,86 @@
           <path d="M13.5 20c0 .828-.672 1.5-1.5 1.5S10.5 20.828 10.5 20" stroke="currentColor" stroke-width="1.8" fill="none" />
         </svg>
       </button>
-      <div class="profile-dropdown" data-global-profile-dropdown>
-        <button class="profile-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="profileDropdownMenu"></button>
-        <div class="dropdown-menu" id="profileDropdownMenu"></div>
+      <div class="profile-dropdown account-dropdown" data-global-account-dropdown>
+        <button class="profile-trigger account-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="accountDropdownMenu"></button>
+        <div class="dropdown-menu" id="accountDropdownMenu"></div>
       </div>
     </div>
   </header>
 
   <div class="dashboard-shell">
-    <aside class="dashboard-sidebar">
-      <nav class="sidebar-nav">
-        <a class="nav-link active" href="dashboard.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/></svg></span>Dashboard</a>
+    <div class="dashboard-sidebar-column">
+      <div class="profile-dropdown profile-switcher-dropdown profile-switcher-rail" data-global-profile-dropdown>
+        <button class="profile-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="profileDropdownMenu"></button>
+        <div class="dropdown-menu" id="profileDropdownMenu"></div>
+      </div>
+      <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+        <a class="nav-link" href="dashboard.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/></svg></span>Dashboard</a>
         <a class="nav-link" href="events.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="5" width="17" height="16" rx="3"/><line x1="3.5" y1="9" x2="20.5" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Eventos</a>
         <a class="nav-link" href="#" data-plan-feature="wallet"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8.5C4 7.11929 5.11929 6 6.5 6H17.5C18.8807 6 20 7.11929 20 8.5V15.5C20 16.8807 18.8807 18 17.5 18H6.5C5.11929 18 4 16.8807 4 15.5V8.5Z"/><path d="M15 12H20"/><circle cx="15.5" cy="12" r="1"/></svg></span>Wallet</a>
         <a class="nav-link" href="#" data-plan-feature="analytics"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="18" x2="6" y2="12"/><line x1="11" y1="18" x2="11" y2="8"/><line x1="16" y1="18" x2="16" y2="4"/><line x1="21" y1="18" x2="21" y2="14"/></svg></span>Analytics</a>
         <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>Notificaciones</a>
         <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Configuración</a>
-      </nav>
-      <div class="sidebar-footer" data-global-plan-card></div>
-    </aside>
+        </nav>
+        <div class="sidebar-footer" data-global-plan-card></div>
+      </aside>
+    </div>
 
     <main class="dashboard-content">
       <section class="profile-details-page" data-profile-details>
-        <div class="profile-details-header dashboard-welcome">
-          <p class="dashboard-breadcrumb">Crear perfil de negocio</p>
-          <h1>Define cómo se mostrará tu negocio dentro de la app de Live.</h1>
-          <p class="profile-flow-support-copy">Esta pantalla ya trabaja sobre tu perfil real en MongoDB. Aquí podrás completar datos, subir documentos y consultar el estado real de verificación.</p>
+        <div class="profile-details-header dashboard-welcome" data-profile-details-intro>
+          <p class="dashboard-breadcrumb" data-profile-details-title>Crear perfil de negocio</p>
+          <h1 data-profile-details-subtitle>Define cómo se mostrará tu negocio dentro de la app de Live.</h1>
         </div>
 
         <div class="profile-details-card">
-          <section class="profile-status-shell" data-profile-status-shell>
-            <div class="profile-status-copy">
-              <span class="profile-status-eyebrow">Estado real del perfil</span>
-              <strong data-profile-status-label>PENDIENTE</strong>
-              <p data-profile-status-message>Estamos consultando el estado real de tu perfil.</p>
+          <div class="profile-details-header">
+            <h2 class="profile-section-title">Perfil de negocio</h2>
+            <div class="profile-status-minimal">
+              <span class="profile-status-chip is-pending" data-profile-status-chip>Estado: Pendiente</span>
+              <div class="profile-status-actions hidden" data-active-profile-actions>
+                <button type="button" class="profile-icon-action is-destructive" data-profile-delete-trigger aria-label="Eliminar perfil" title="Eliminar perfil">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 7H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M9.5 10.5V16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M14.5 10.5V16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <path d="M6.5 7L7.4 18.2C7.48455 19.2501 8.36104 20.0588 9.41459 20.0588H14.5854C15.639 20.0588 16.5154 19.2501 16.6 18.2L17.5 7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path d="M9 7V4.8C9 4.35817 9.35817 4 9.8 4H14.2C14.6418 4 15 4.35817 15 4.8V7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
-            <div class="profile-status-meta">
-              <span class="profile-status-flag" data-profile-publish-flag>No habilitado para publicar eventos</span>
-              <button type="button" class="secondary-button profile-status-refresh" data-profile-refresh-status>Actualizar estado</button>
-            </div>
-          </section>
+          </div>
 
           <div class="profile-details-grid">
             <div class="profile-photo-block">
-              <button type="button" class="business-upload-card" aria-label="Subir foto de perfil del negocio">
-                <span class="business-upload-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 16V8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    <path d="M9 11L12 8L15 11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M5 16.5V17C5 18.1046 5.89543 19 7 19H17C18.1046 19 19 18.1046 19 17V16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                    <rect x="4" y="4" width="16" height="16" rx="4" stroke="currentColor" stroke-width="1.4" stroke-dasharray="4 4"/>
-                  </svg>
+              <span class="profile-field-title profile-photo-title">Foto de perfil</span>
+              <button type="button" class="business-upload-card" aria-label="Subir foto de perfil del negocio" data-profile-image-trigger>
+                <span class="business-upload-preview" data-profile-image-preview hidden>
+                  <img src="" alt="Vista previa de la foto de perfil" data-profile-image-preview-img>
                 </span>
-                <strong>Foto de perfil del negocio</strong>
-                <span class="field-helper-text">Esta imagen todavía no se persiste. En esta fase queda conectado el flujo real de perfil, documentos y estado.</span>
+                <span class="business-upload-placeholder" data-profile-image-placeholder aria-hidden="true">
+                  <span class="business-upload-placeholder-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M7.5 18.25C5.84315 18.25 4.5 16.9069 4.5 15.25C4.5 13.7674 5.57531 12.536 7.00279 12.293C7.47546 9.82152 9.64669 8 12.25 8C14.6331 8 16.6595 9.52534 17.3916 11.6531C18.9574 11.8282 20.175 13.1574 20.175 14.77C20.175 16.5015 18.7715 17.905 17.04 17.905H15.9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M12 17.25V11" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>
+                      <path d="M9.4 13.45L12 10.85L14.6 13.45" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </span>
+                <input type="file" accept="image/*" hidden data-profile-image-input>
               </button>
             </div>
 
             <div class="profile-details-form">
               <label>
-                <span>Nombre del negocio</span>
-                <small class="field-helper-text">Es el nombre con el que tu negocio será identificado dentro de Live.</small>
+                <span class="profile-field-title">Nombre del negocio</span>
                 <input type="text" name="businessName">
               </label>
 
               <label>
-                <span>Nombre de usuario</span>
-                <small class="field-helper-text">Será el identificador público de tu negocio dentro de la app (ejemplo: @tunegocio).</small>
+                <span class="profile-field-title">Nombre de usuario</span>
                 <div class="username-input-group">
                   <span class="username-input-prefix" aria-hidden="true">@</span>
                   <input type="text" name="businessUsername" placeholder="tunegocio">
@@ -112,15 +125,17 @@
               </label>
 
               <label>
-                <span>Ciudad</span>
-                <small class="field-helper-text">Por ahora los perfiles solo pueden operar en Barranquilla y debes seleccionarla desde aquí.</small>
+                <span class="profile-field-title">Ciudad</span>
                 <select name="businessCity" required>
                   <option value="Barranquilla">Barranquilla</option>
                 </select>
               </label>
 
               <div class="profile-categories-block">
-                <span class="profile-categories-label">Categorías</span>
+                <div class="profile-categories-header">
+                  <span class="profile-categories-label profile-field-title">Categorías</span>
+                  <span class="profile-categories-counter" data-category-selection-counter aria-live="polite">(0/2) seleccionadas</span>
+                </div>
                 <small class="field-helper-text">Selecciona las categorías que mejor representen tu negocio para ayudar a los usuarios a encontrarlo.</small>
                 <div class="category-chip-grid" role="group" aria-label="Categorías del negocio">
                   <button type="button" class="category-chip" data-category-chip aria-pressed="false">Artísticos</button>
@@ -135,26 +150,89 @@
             </div>
           </div>
 
-          <section class="profile-documents-shell" data-profile-documents-shell>
-            <div class="profile-documents-header">
-              <div>
-                <span class="profile-status-eyebrow">Documentos del perfil</span>
-                <h2>Sube los documentos requeridos para verificación</h2>
-              </div>
-              <p class="field-helper-text">Cada documento se cargará sobre el perfil real que acabas de crear. Si un documento es rechazado o queda en revisión, podrás volver a cargarlo desde aquí.</p>
-            </div>
-            <div class="profile-documents-grid" data-profile-documents-grid></div>
-          </section>
-
-          <div class="profile-page-actions">
-            <a href="business-profile.html" class="profile-back-button">Crear otro perfil</a>
-            <button type="button" class="profile-continue-button" id="createBusinessProfileButton">Guardar perfil</button>
-          </div>
         </div>
+
+        <div class="profile-page-actions profile-business-save-actions hidden" data-business-save-actions>
+          <button type="button" class="profile-continue-button" id="saveActiveProfileChangesButton">Guardar cambios</button>
+        </div>
+
+        <section class="profile-legal-card" data-profile-legal-card>
+          <div class="profile-legal-header" data-profile-legal-header>
+            <div class="profile-legal-header-copy">
+              <span class="profile-section-title">Información legal</span>
+              <span class="profile-legal-toggle-helper" data-profile-legal-helper>Datos registrados para la validación legal del perfil.</span>
+            </div>
+            <div class="profile-legal-header-actions">
+              <div class="profile-status-actions profile-legal-actions hidden" data-profile-legal-actions>
+                <button type="button" class="profile-icon-action profile-legal-header-action" data-profile-legal-edit-toggle aria-label="Editar información legal" title="Editar información legal">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 20H8L18.5 9.5C19.3284 8.67157 19.3284 7.32843 18.5 6.5V6.5C17.6716 5.67157 16.3284 5.67157 15.5 6.5L5 17V20Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    <path d="M13.5 8.5L16.5 11.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+              <button type="button" class="profile-icon-action profile-legal-toggle" data-profile-legal-toggle aria-expanded="false" aria-controls="profileLegalContent" aria-label="Expandir información legal" title="Expandir información legal">
+                <span class="profile-legal-toggle-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+          <div class="profile-legal-content hidden" id="profileLegalContent" data-profile-legal-content>
+            <div class="profile-legal-grid" data-profile-legal-grid></div>
+            <div class="profile-page-actions profile-legal-edit-actions hidden" data-profile-legal-edit-actions>
+              <button type="button" class="profile-back-button" data-profile-legal-edit-cancel>Cancelar edición</button>
+              <button type="button" class="profile-continue-button" id="saveLegalProfileChangesButton">Guardar cambios legales</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="profile-documents-shell" data-profile-documents-shell hidden>
+          <div class="profile-documents-header">
+            <div>
+              <span class="profile-status-eyebrow">Documentación del perfil</span>
+              <h2>Documentos de verificación</h2>
+            </div>
+          </div>
+          <div class="profile-documents-grid" data-profile-documents-grid></div>
+        </section>
+
+        <div class="profile-page-actions profile-page-actions-outside" data-default-profile-actions>
+          <a href="business-profile.html" class="profile-back-button">Crear otro perfil</a>
+          <button type="button" class="profile-continue-button" id="createBusinessProfileButton">Guardar perfil</button>
+        </div>
+
       </section>
     </main>
   </div>
 
-  <script src="script.js"></script>
+  <div class="modal-overlay hidden" id="deleteProfileModal">
+    <div class="modal-card profile-confirm-modal-card" role="dialog" aria-modal="true" aria-labelledby="deleteProfileModalTitle">
+      <span class="portal-feedback-badge is-destructive">Acción permanente</span>
+      <h2 id="deleteProfileModalTitle">Eliminar perfil</h2>
+      <p>¿Estás seguro de que quieres eliminar este perfil? Esta acción es permanente y no se puede deshacer.</p>
+      <p class="profile-confirm-modal-caption">Si eliminas este perfil, perderás su configuración, estado de verificación y cualquier información asociada.</p>
+      <div class="portal-feedback-actions profile-confirm-modal-actions">
+        <button type="button" class="secondary-button profile-confirm-cancel" id="deleteProfileCancelButton">Cancelar</button>
+        <button type="button" class="destructive-button" id="deleteProfileConfirmButton">Eliminar perfil</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="profileFeedbackModal">
+    <div class="modal-card portal-feedback-modal-card" id="profileFeedbackCard">
+      <span class="portal-feedback-badge hidden" id="profileFeedbackBadge"></span>
+      <h2 id="profileFeedbackTitle">Perfil enviado a revisión</h2>
+      <p id="profileFeedbackMessage">Tu perfil fue creado correctamente y ahora está en proceso de validación. Te avisaremos pronto si queda activo.</p>
+      <div class="portal-feedback-actions">
+        <button type="button" class="secondary-button hidden" id="profileFeedbackSecondary">Ver estado del perfil</button>
+        <button type="button" class="primary-button" id="profileFeedbackPrimary">Ir al dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=20260413d"></script>
 </body>
 </html>

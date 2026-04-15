@@ -1,5 +1,17 @@
 const mongoose = require('mongoose');
 
+const normalizeProfileIdentifier = function (value) {
+  return String(value || '').trim().replace(/[\s.-]+/g, '');
+};
+
+const normalizeIdentityDocumentNumber = function (value) {
+  return normalizeProfileIdentifier(value);
+};
+
+const normalizeTaxIdentifier = function (value) {
+  return normalizeProfileIdentifier(value);
+};
+
 const BUSINESS_PROFILE_TYPES = ['NATURAL', 'LEGAL'];
 const BUSINESS_PROFILE_STATUSES = ['ACTIVE', 'INACTIVE'];
 const VERIFICATION_STATUSES = ['PENDING', 'PROCESSING', 'APPROVED', 'REJECTED', 'MANUAL_REVIEW'];
@@ -9,6 +21,7 @@ const naturalPersonSchema = new mongoose.Schema({
   fullName: { type: String, trim: true },
   documentTypeExpected: { type: String, default: 'CO_CEDULA_CIUDADANIA', trim: true },
   documentNumber: { type: String, trim: true },
+  documentNumberNormalized: { type: String, trim: true },
   expeditionDate: { type: Date },
   frontDocumentId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProfileDocument' },
   backDocumentId: { type: mongoose.Schema.Types.ObjectId, ref: 'ProfileDocument' }
@@ -17,6 +30,7 @@ const naturalPersonSchema = new mongoose.Schema({
 const legalEntitySchema = new mongoose.Schema({
   companyName: { type: String, trim: true },
   taxId: { type: String, trim: true },
+  taxIdNormalized: { type: String, trim: true },
   verificationDigit: { type: String, trim: true },
   taxIdFormatted: { type: String, trim: true },
   legalRepresentative: { type: String, trim: true },
@@ -37,6 +51,7 @@ const businessProfileSchema = new mongoose.Schema({
   profileType: { type: String, enum: BUSINESS_PROFILE_TYPES, required: true },
   status: { type: String, enum: BUSINESS_PROFILE_STATUSES, default: 'ACTIVE' },
   verificationStatus: { type: String, enum: VERIFICATION_STATUSES, default: 'PENDING', index: true },
+  businessSetupCompleted: { type: Boolean, default: false },
   canPublishEvents: { type: Boolean, default: false },
   displayName: { type: String, trim: true },
   businessName: { type: String, trim: true },
@@ -63,11 +78,17 @@ const businessProfileSchema = new mongoose.Schema({
 });
 
 businessProfileSchema.pre('validate', function () {
+  if (this.naturalPerson) {
+    this.naturalPerson.documentNumber = String(this.naturalPerson.documentNumber || '').trim();
+    this.naturalPerson.documentNumberNormalized = normalizeIdentityDocumentNumber(this.naturalPerson.documentNumber);
+  }
+
   if (this.legalEntity) {
-    const normalizedTaxId = String(this.legalEntity.taxId || '').replace(/\D/g, '');
+    const normalizedTaxId = normalizeTaxIdentifier(this.legalEntity.taxId);
     const normalizedVerificationDigit = String(this.legalEntity.verificationDigit || '').replace(/\D/g, '').slice(0, 1);
 
     this.legalEntity.taxId = normalizedTaxId;
+    this.legalEntity.taxIdNormalized = normalizedTaxId;
     this.legalEntity.verificationDigit = normalizedVerificationDigit;
     this.legalEntity.taxIdFormatted = normalizedTaxId && normalizedVerificationDigit
       ? normalizedTaxId + '-' + normalizedVerificationDigit
@@ -99,11 +120,22 @@ businessProfileSchema.pre('validate', function () {
 businessProfileSchema.index({ ownerClientId: 1, createdAt: -1 }, { name: 'business_profiles_owner_created_idx' });
 businessProfileSchema.index({ ownerClientId: 1, verificationStatus: 1 }, { name: 'business_profiles_owner_verification_idx' });
 businessProfileSchema.index({ businessCity: 1, verificationStatus: 1 }, { name: 'business_profiles_city_verification_idx' });
+businessProfileSchema.index(
+  { profileType: 1, ownerClientId: 1, 'naturalPerson.documentNumberNormalized': 1 },
+  { name: 'business_profiles_owner_normalized_document_idx' }
+);
+businessProfileSchema.index(
+  { profileType: 1, ownerClientId: 1, 'legalEntity.taxIdNormalized': 1 },
+  { name: 'business_profiles_owner_normalized_tax_id_idx' }
+);
 
 module.exports = {
   BusinessProfile: mongoose.model('BusinessProfile', businessProfileSchema),
   BUSINESS_PROFILE_TYPES,
   BUSINESS_PROFILE_STATUSES,
   VERIFICATION_STATUSES,
-  BUSINESS_PROFILE_CITIES
+  BUSINESS_PROFILE_CITIES,
+  normalizeProfileIdentifier,
+  normalizeIdentityDocumentNumber,
+  normalizeTaxIdentifier
 };

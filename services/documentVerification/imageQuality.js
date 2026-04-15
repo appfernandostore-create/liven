@@ -67,6 +67,7 @@ const assessImageQuality = async function (documentPath) {
     .rotate()
     .greyscale()
     .normalize()
+    .sharpen()
     .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true });
   const stats = await normalizedImage.stats();
   const buffer = await normalizedImage.raw().toBuffer({ resolveWithObject: true });
@@ -121,6 +122,7 @@ const assessImageQuality = async function (documentPath) {
       height: metadata.height || null,
       channels: metadata.channels || null,
       extension: metadata.format || null,
+      orientation: metadata.orientation || null,
       blurSignal: Number(blurSignal.toFixed(2)),
       brightness: Number(brightness.toFixed(2)),
       contrastSpread: Number(contrastSpread.toFixed(2))

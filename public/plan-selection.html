@@ -10,7 +10,7 @@
 <body class="dashboard-body business-profile-body">
   <header class="dashboard-page-header">
     <div class="topbar-left">
-      <div class="topbar-brand">
+      <div class="topbar-brand topbar-brand-static">
         <div class="brand-mark">L</div>
         <div>
           <strong>Live</strong>
@@ -38,25 +38,31 @@
           <path d="M13.5 20c0 .828-.672 1.5-1.5 1.5S10.5 20.828 10.5 20" stroke="currentColor" stroke-width="1.8" fill="none" />
         </svg>
       </button>
-      <div class="profile-dropdown" data-global-profile-dropdown>
-        <button class="profile-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="profileDropdownMenu"></button>
-        <div class="dropdown-menu" id="profileDropdownMenu"></div>
+      <div class="profile-dropdown account-dropdown" data-global-account-dropdown>
+        <button class="profile-trigger account-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="accountDropdownMenu"></button>
+        <div class="dropdown-menu" id="accountDropdownMenu"></div>
       </div>
     </div>
   </header>
 
   <div class="dashboard-shell">
-    <aside class="dashboard-sidebar">
-      <nav class="sidebar-nav">
+    <div class="dashboard-sidebar-column">
+      <div class="profile-dropdown profile-switcher-dropdown profile-switcher-rail" data-global-profile-dropdown>
+        <button class="profile-trigger" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="profileDropdownMenu"></button>
+        <div class="dropdown-menu" id="profileDropdownMenu"></div>
+      </div>
+      <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
         <a class="nav-link" href="dashboard.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="4" width="6" height="6" rx="1.2"/><rect x="14" y="4" width="6" height="6" rx="1.2"/><rect x="4" y="14" width="6" height="6" rx="1.2"/><rect x="14" y="14" width="6" height="6" rx="1.2"/></svg></span>Dashboard</a>
         <a class="nav-link" href="events.html"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3.5" y="5" width="17" height="16" rx="3"/><line x1="3.5" y1="9" x2="20.5" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></svg></span>Eventos</a>
         <a class="nav-link" href="#" data-plan-feature="wallet"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 8.5C4 7.11929 5.11929 6 6.5 6H17.5C18.8807 6 20 7.11929 20 8.5V15.5C20 16.8807 18.8807 18 17.5 18H6.5C5.11929 18 4 16.8807 4 15.5V8.5Z"/><path d="M15 12H20"/><circle cx="15.5" cy="12" r="1"/></svg></span>Wallet</a>
         <a class="nav-link" href="#" data-plan-feature="analytics"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="6" y1="18" x2="6" y2="12"/><line x1="11" y1="18" x2="11" y2="8"/><line x1="16" y1="18" x2="16" y2="4"/><line x1="21" y1="18" x2="21" y2="14"/></svg></span>Analytics</a>
         <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>Notificaciones</a>
         <a class="nav-link" href="#"><span class="nav-icon"><svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>Configuración</a>
-      </nav>
-      <div class="sidebar-footer" data-global-plan-card></div>
-    </aside>
+        </nav>
+        <div class="sidebar-footer" data-global-plan-card></div>
+      </aside>
+    </div>
 
     <main class="dashboard-content">
       <section class="plan-selection-page" data-plan-selector>
