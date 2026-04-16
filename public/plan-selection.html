@@ -72,86 +72,178 @@
         </div>
 
         <div class="plan-selection-shell">
-          <div class="plan-section-intro">
-            <h2>Elige el plan ideal para tu negocio</h2>
-            <p>Visualiza rápidamente los beneficios de cada opción y el alcance comercial que tendrás para publicar, vender boletería y acceder a herramientas avanzadas.</p>
+          <div class="plan-selection-hero">
+            <div class="plan-section-intro">
+              <span class="plan-section-kicker">Arquitectura de membresías</span>
+              <h2>Diseñadas para crecer con tu operación, no solo para listar beneficios.</h2>
+              <p>Cada plan está pensado como una etapa de madurez comercial: desde validar demanda y presencia inicial, hasta operar con venta, analítica y acceso total a la capa premium de Live.</p>
+            </div>
+
+            <div class="plan-selection-brief" aria-label="Resumen del sistema de planes">
+              <div class="plan-selection-brief-card">
+                <span class="plan-selection-brief-label">Free</span>
+                <strong>Entrada elegante</strong>
+                <p>Presencia inicial, validación y control básico.</p>
+              </div>
+              <div class="plan-selection-brief-card is-accent">
+                <span class="plan-selection-brief-label">Premium</span>
+                <strong>Motor comercial</strong>
+                <p>Más días, boletería y una propuesta que ya vende mejor.</p>
+              </div>
+              <div class="plan-selection-brief-card is-elite">
+                <span class="plan-selection-brief-label">Premium+</span>
+                <strong>Signature access</strong>
+                <p>Capacidad ilimitada, personalización visual y control total de la experiencia.</p>
+              </div>
+            </div>
           </div>
 
           <div class="plan-comparison-grid">
-            <article class="plan-option-card is-disabled" data-plan-option="gratuito" tabindex="-1" aria-pressed="false" aria-disabled="true">
+            <article class="plan-option-card plan-option-free is-disabled" data-plan-option="gratuito" tabindex="-1" aria-pressed="false" aria-disabled="true">
+              <div class="plan-option-badge">Base actual</div>
               <div class="plan-option-top">
-                <span class="plan-option-label">Gratuito</span>
+                <div class="plan-option-header">
+                  <span class="plan-option-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="4" y="5" width="16" height="14" rx="4" stroke="currentColor" stroke-width="1.7"/>
+                      <path d="M8 12H16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                      <path d="M8 9H11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <div class="plan-option-heading">
+                    <div class="plan-option-title-row">
+                      <span class="plan-option-label">Free</span>
+                      <span class="plan-option-state">Sobrio</span>
+                    </div>
+                    <p class="plan-option-summary">Una base seria para validar demanda, construir presencia y operar con control antes de escalar.</p>
+                  </div>
+                </div>
+
                 <div class="plan-price-block">
                   <strong>Sin costo</strong>
-                  <span>Ideal para comenzar</span>
+                  <span>Ideal para empezar con foco y control</span>
+                </div>
+
+                <div class="plan-metric-strip" aria-label="Beneficios clave del plan Free">
+                  <span class="plan-metric-pill"><strong>3</strong><span>días/mes</span></span>
+                  <span class="plan-metric-pill"><strong>Base</strong><span>operación esencial</span></span>
                 </div>
               </div>
 
               <ul class="plan-feature-list">
                 <li>
-                  <span class="plan-feature-name">Días de publicación</span>
+                  <span class="plan-feature-name">Publicación de eventos</span>
                   <strong>3 días al mes</strong>
                   <span class="plan-feature-caption">Cada día con al menos un evento publicado cuenta como 1 día, aunque publiques uno o varios eventos.</span>
                 </li>
-                <li><span class="plan-feature-name">Acceso a analytics</span><span class="plan-feature-status is-negative">No incluido</span></li>
+                <li><span class="plan-feature-name">Analytics</span><span class="plan-feature-status is-negative">No incluido</span></li>
                 <li><span class="plan-feature-name">Venta de boletería</span><span class="plan-feature-status is-negative">No incluido</span></li>
-                <li><span class="plan-feature-name">Acceso completo a la plataforma</span><span class="plan-feature-status is-negative">No incluido</span></li>
+                <li><span class="plan-feature-name">Experiencia completa Live</span><span class="plan-feature-status is-negative">Acceso limitado</span></li>
               </ul>
 
-              <div class="plan-footnote">Incluye 3 días de publicación al mes para activar uno o varios eventos según tu operación.</div>
+              <div class="plan-footnote">Pensado para comenzar con foco y disciplina, sin pagar por capacidad que todavía no necesitas.</div>
 
-              <div class="plan-current-label">Plan actual</div>
+              <div class="plan-option-footer" data-plan-footer>
+                <div class="plan-current-label">Plan actual</div>
+              </div>
             </article>
 
-            <article class="plan-option-card is-recommended is-selected" data-plan-option="premium" tabindex="0" aria-pressed="true">
-              <div class="plan-option-badge">Recomendado</div>
+            <article class="plan-option-card plan-option-premium is-recommended is-selected" data-plan-option="premium" data-cta-default="Elegir Premium" data-cta-selected="Continuar con Premium" tabindex="0" aria-pressed="true">
+              <div class="plan-option-badge">Más elegido</div>
               <div class="plan-option-top">
-                <span class="plan-option-label">Premium</span>
+                <div class="plan-option-header">
+                  <span class="plan-option-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M5 16.5L8.2 8L12 11L15.8 8L19 16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M7.5 18.5H16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                      <circle cx="12" cy="6" r="1.2" fill="currentColor" stroke="none"/>
+                    </svg>
+                  </span>
+                  <div class="plan-option-heading">
+                    <div class="plan-option-title-row">
+                      <span class="plan-option-label">Premium</span>
+                      <span class="plan-option-state">Aspiracional</span>
+                    </div>
+                    <p class="plan-option-summary">La opción más equilibrada para pasar de presencia básica a una operación que ya vende mejor y se ve más profesional.</p>
+                  </div>
+                </div>
+
                 <div class="plan-price-block">
                   <strong>$49.900</strong>
                   <span>Por mes</span>
                 </div>
-              </div>
 
-              <ul class="plan-feature-list">
-                <li>
-                  <span class="plan-feature-name">Días de publicación</span>
-                  <strong>30 días al mes</strong>
-                  <span class="plan-feature-caption">Cada día con al menos un evento publicado cuenta como 1 día, aunque publiques uno o varios eventos.</span>
-                </li>
-                <li><span class="plan-feature-name">Acceso a analytics</span><span class="plan-feature-status is-negative">No incluido</span></li>
-                <li><span class="plan-feature-name">Venta de boletería</span><span class="plan-feature-status is-positive">Incluido</span></li>
-                <li><span class="plan-feature-name">Acceso completo a la plataforma</span><span class="plan-feature-status is-partial">Parcial</span></li>
-              </ul>
-
-              <div class="plan-footnote">Incluye 30 días de publicación al mes para operar con mayor continuidad y flexibilidad.</div>
-
-              <button type="button" class="plan-select-button is-selected" data-plan-select-button>Continuar con este plan</button>
-            </article>
-
-            <article class="plan-option-card" data-plan-option="premium-plus" tabindex="0" aria-pressed="false">
-              <div class="plan-option-top">
-                <span class="plan-option-label">Premium+</span>
-                <div class="plan-price-block">
-                  <strong>$99.900</strong>
-                  <span>Por mes</span>
+                <div class="plan-metric-strip" aria-label="Beneficios clave del plan Premium">
+                  <span class="plan-metric-pill"><strong>30</strong><span>días/mes</span></span>
+                  <span class="plan-metric-pill"><strong>Boletería</strong><span>ya incluida</span></span>
                 </div>
               </div>
 
               <ul class="plan-feature-list">
                 <li>
-                  <span class="plan-feature-name">Días de publicación</span>
-                  <strong>Ilimitados</strong>
-                  <span class="plan-feature-caption">Cada día con al menos un evento publicado cuenta como 1 día, aunque publiques uno o varios eventos.</span>
+                  <span class="plan-feature-name">Publicación de eventos</span>
+                  <strong>30 días al mes</strong>
+                  <span class="plan-feature-caption">Sostén continuidad operativa y mantén varias campañas activas con margen real de maniobra.</span>
                 </li>
-                <li><span class="plan-feature-name">Acceso a analytics</span><span class="plan-feature-status is-positive">Incluido</span></li>
+                <li><span class="plan-feature-name">Analytics</span><span class="plan-feature-status is-negative">No incluido</span></li>
                 <li><span class="plan-feature-name">Venta de boletería</span><span class="plan-feature-status is-positive">Incluido</span></li>
-                <li><span class="plan-feature-name">Acceso completo a la plataforma</span><span class="plan-feature-status is-positive">Incluido</span></li>
+                <li><span class="plan-feature-name">Experiencia completa Live</span><span class="plan-feature-status is-partial">Acceso ampliado</span></li>
               </ul>
 
-              <div class="plan-footnote">Incluye publicación ilimitada, analíticas completas y acceso total a la experiencia Live.</div>
+              <div class="plan-footnote">Ideal para marcas que ya necesitan continuidad, venta integrada y una presentación más potente dentro de Live.</div>
 
-              <button type="button" class="plan-select-button" data-plan-select-button>Seleccionar plan</button>
+              <div class="plan-option-footer" data-plan-footer>
+                <button type="button" class="plan-select-button is-selected" data-plan-select-button>Continuar con este plan</button>
+              </div>
+            </article>
+
+            <article class="plan-option-card plan-option-premium-plus" data-plan-option="premium-plus" data-cta-default="Desbloquear Premium+" data-cta-selected="Entrar a Premium+" tabindex="0" aria-pressed="false">
+              <div class="plan-option-badge">Signature tier</div>
+              <div class="plan-option-top">
+                <div class="plan-option-header">
+                  <span class="plan-option-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 3.8L14.15 8.15L18.95 8.85L15.48 12.23L16.3 17L12 14.74L7.7 17L8.52 12.23L5.05 8.85L9.85 8.15L12 3.8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                      <path d="M7.5 19.2H16.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <div class="plan-option-heading">
+                    <div class="plan-option-title-row">
+                      <span class="plan-option-label">Premium+</span>
+                      <span class="plan-option-state">Exclusivo</span>
+                    </div>
+                    <p class="plan-option-summary">La experiencia máxima de Live para operaciones que quieren estatus, personalización visual, escala sin techo y control total.</p>
+                  </div>
+                </div>
+
+                <div class="plan-price-block">
+                  <strong>$99.900</strong>
+                  <span>Por mes · acceso más completo</span>
+                </div>
+
+                <div class="plan-metric-strip" aria-label="Beneficios clave del plan Premium Plus">
+                  <span class="plan-metric-pill"><strong>Ilimitado</strong><span>publicación</span></span>
+                  <span class="plan-metric-pill"><strong>Apariencia</strong><span>studio exclusivo</span></span>
+                </div>
+              </div>
+
+              <ul class="plan-feature-list">
+                <li>
+                  <span class="plan-feature-name">Publicación de eventos</span>
+                  <strong>Ilimitada</strong>
+                  <span class="plan-feature-caption">Opera sin techo mensual y administra campañas, temporadas y múltiples lanzamientos con libertad total.</span>
+                </li>
+                <li><span class="plan-feature-name">Analytics</span><span class="plan-feature-status is-positive">Incluido</span></li>
+                <li><span class="plan-feature-name">Venta de boletería</span><span class="plan-feature-status is-positive">Incluido</span></li>
+                <li><span class="plan-feature-name">Apariencia avanzada</span><span class="plan-feature-status is-positive">Exclusiva</span></li>
+                <li><span class="plan-feature-name">Experiencia completa Live</span><span class="plan-feature-status is-positive">Acceso total</span></li>
+              </ul>
+
+              <div class="plan-footnote">La capa superior para marcas que quieren operar sin límites, verse distintas y controlar una experiencia claramente más exclusiva.</div>
+
+              <div class="plan-option-footer" data-plan-footer>
+                <button type="button" class="plan-select-button" data-plan-select-button>Seleccionar plan</button>
+              </div>
             </article>
           </div>
 

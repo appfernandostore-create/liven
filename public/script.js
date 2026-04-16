@@ -3,15 +3,35 @@ document.addEventListener('DOMContentLoaded', function () {
   const isPortalPage = body.classList.contains('dashboard-body');
   let isPortalNavigating = false;
   const ACTIVE_CLIENT_STORAGE_KEY = 'livenActiveClient';
+  const ACTIVE_CLIENT_PERSISTENT_STORAGE_KEY = 'livenActiveClientPersistent';
   const ACTIVE_BUSINESS_PROFILE_STORAGE_KEY = 'livenActiveBusinessProfileId';
   const REGISTERED_CLIENT_DRAFT_STORAGE_KEY = 'livenRegisteredClientDraft';
   const PENDING_PROFILE_SETUP_TRANSITION_STORAGE_KEY = 'livenPendingProfileSetupTransitionId';
+  const APPEARANCE_STORAGE_KEY_PREFIX = 'livenAppearancePreferences:';
   const DEFAULT_ACTIVE_CLIENT = {
     fullName: 'Live Premium+',
     email: 'cliente@live.local',
     role: 'CLIENTE',
     plan: 'PREMIUM_PLUS'
   };
+  const DEFAULT_APPEARANCE_SETTINGS = {
+    mode: 'light',
+    color: 'white'
+  };
+  const APPEARANCE_MODE_OPTIONS = [
+    { value: 'light', label: 'Claro' },
+    { value: 'dark', label: 'Oscuro' }
+  ];
+  const APPEARANCE_COLOR_OPTIONS = [
+    { value: 'white', label: 'Blanco', swatch: 'linear-gradient(135deg, #ffffff 0%, #e7eef8 100%)', accent: '#2950d4', accentStrong: '#1839a8', accentSoft: 'rgba(41, 80, 212, 0.16)', accentSurface: 'rgba(239, 245, 255, 0.86)', accentRgb: '41, 80, 212' },
+    { value: 'black', label: 'Negro', swatch: 'linear-gradient(135deg, #111827 0%, #475569 100%)', accent: '#111827', accentStrong: '#020617', accentSoft: 'rgba(15, 23, 42, 0.18)', accentSurface: 'rgba(226, 232, 240, 0.72)', accentRgb: '17, 24, 39' },
+    { value: 'green', label: 'Verde', swatch: 'linear-gradient(135deg, #0f766e 0%, #34d399 100%)', accent: '#0f766e', accentStrong: '#115e59', accentSoft: 'rgba(15, 118, 110, 0.18)', accentSurface: 'rgba(236, 253, 245, 0.84)', accentRgb: '15, 118, 110' },
+    { value: 'blue', label: 'Azul', swatch: 'linear-gradient(135deg, #1d4ed8 0%, #38bdf8 100%)', accent: '#1d4ed8', accentStrong: '#1e40af', accentSoft: 'rgba(29, 78, 216, 0.18)', accentSurface: 'rgba(239, 246, 255, 0.84)', accentRgb: '29, 78, 216' },
+    { value: 'red', label: 'Rojo', swatch: 'linear-gradient(135deg, #b91c1c 0%, #fb7185 100%)', accent: '#b91c1c', accentStrong: '#991b1b', accentSoft: 'rgba(185, 28, 28, 0.18)', accentSurface: 'rgba(254, 242, 242, 0.84)', accentRgb: '185, 28, 28' },
+    { value: 'purple', label: 'Morado', swatch: 'linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%)', accent: '#6d28d9', accentStrong: '#5b21b6', accentSoft: 'rgba(109, 40, 217, 0.18)', accentSurface: 'rgba(245, 243, 255, 0.84)', accentRgb: '109, 40, 217' },
+    { value: 'pink', label: 'Rosado', swatch: 'linear-gradient(135deg, #db2777 0%, #fb7185 100%)', accent: '#db2777', accentStrong: '#be185d', accentSoft: 'rgba(219, 39, 119, 0.18)', accentSurface: 'rgba(253, 242, 248, 0.84)', accentRgb: '219, 39, 119' },
+    { value: 'yellow', label: 'Amarillo', swatch: 'linear-gradient(135deg, #ca8a04 0%, #facc15 100%)', accent: '#ca8a04', accentStrong: '#a16207', accentSoft: 'rgba(202, 138, 4, 0.18)', accentSurface: 'rgba(254, 249, 195, 0.84)', accentRgb: '202, 138, 4' }
+  ];
   const MAX_PROFILE_IMAGE_SIZE_BYTES = 4 * 1024 * 1024;
   const MAX_PROFILE_CATEGORIES = 2;
   const PROFILE_DOCUMENT_CONFIG = {
@@ -48,6 +68,25 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
   };
+
+  const showLoadingOverlay = function () {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+      overlay.classList.remove('hidden');
+    }
+  };
+
+  const hideLoadingOverlay = function () {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) {
+      overlay.classList.add('hidden');
+    }
+  };
+
+  hideLoadingOverlay();
+
+  const currentPath = String(window.location.pathname || '').split('/').pop() || 'index.html';
+  const isAuthPage = currentPath === 'index.html' || currentPath === 'register.html';
 
   const getPlanLabel = function (plan) {
     const normalizedPlan = String(plan || '').toUpperCase();
@@ -107,6 +146,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const PLAN_FEATURE_REQUIREMENTS = {
     analytics: {
+      minTier: 3,
+      upgradeTarget: 'plan-selection.html'
+    },
+    appearance: {
       minTier: 3,
       upgradeTarget: 'plan-selection.html'
     },
@@ -214,28 +257,146 @@ document.addEventListener('DOMContentLoaded', function () {
     };
   };
 
-  const saveActiveClient = function (client) {
-    window.sessionStorage.setItem(ACTIVE_CLIENT_STORAGE_KEY, JSON.stringify(normalizeActiveClient(client)));
+  const findAppearanceColorOption = function (colorValue) {
+    return APPEARANCE_COLOR_OPTIONS.find(function (option) {
+      return option.value === String(colorValue || '').trim().toLowerCase();
+    }) || APPEARANCE_COLOR_OPTIONS[0];
   };
 
-  const loadActiveClient = function () {
-    const storedClient = window.sessionStorage.getItem(ACTIVE_CLIENT_STORAGE_KEY);
+  const normalizeAppearanceSettings = function (settings) {
+    const normalizedMode = String(settings && settings.mode ? settings.mode : DEFAULT_APPEARANCE_SETTINGS.mode).trim().toLowerCase() === 'dark'
+      ? 'dark'
+      : 'light';
+    const normalizedColor = findAppearanceColorOption(settings && settings.color ? settings.color : DEFAULT_APPEARANCE_SETTINGS.color).value;
+
+    return {
+      mode: normalizedMode,
+      color: normalizedColor
+    };
+  };
+
+  const getAppearanceStorageKey = function (client) {
+    const normalizedClient = normalizeActiveClient(client);
+    return APPEARANCE_STORAGE_KEY_PREFIX + String(normalizedClient.email || DEFAULT_ACTIVE_CLIENT.email).trim().toLowerCase();
+  };
+
+  const loadStoredAppearanceSettings = function (client) {
+    const normalizedClient = normalizeActiveClient(client);
+
+    if (!canAccessFeature(normalizedClient.plan, 'appearance')) {
+      return Object.assign({}, DEFAULT_APPEARANCE_SETTINGS);
+    }
+
+    const storedValue = window.localStorage.getItem(getAppearanceStorageKey(normalizedClient));
+
+    if (!storedValue) {
+      return Object.assign({}, DEFAULT_APPEARANCE_SETTINGS);
+    }
+
+    try {
+      return normalizeAppearanceSettings(JSON.parse(storedValue));
+    } catch (error) {
+      window.localStorage.removeItem(getAppearanceStorageKey(normalizedClient));
+      return Object.assign({}, DEFAULT_APPEARANCE_SETTINGS);
+    }
+  };
+
+  const saveAppearanceSettings = function (client, settings) {
+    const normalizedClient = normalizeActiveClient(client);
+
+    if (!canAccessFeature(normalizedClient.plan, 'appearance')) {
+      return Object.assign({}, DEFAULT_APPEARANCE_SETTINGS);
+    }
+
+    const normalizedSettings = normalizeAppearanceSettings(settings);
+    window.localStorage.setItem(getAppearanceStorageKey(normalizedClient), JSON.stringify(normalizedSettings));
+    return normalizedSettings;
+  };
+
+  const applyAppearanceTheme = function (settings) {
+    const normalizedSettings = normalizeAppearanceSettings(settings);
+    const root = document.documentElement;
+    const palette = findAppearanceColorOption(normalizedSettings.color);
+
+    body.dataset.uiMode = normalizedSettings.mode;
+    body.dataset.uiAccent = normalizedSettings.color;
+    root.style.setProperty('--ui-accent', palette.accent);
+    root.style.setProperty('--ui-accent-strong', palette.accentStrong);
+    root.style.setProperty('--ui-accent-soft', palette.accentSoft);
+    root.style.setProperty('--ui-accent-surface', palette.accentSurface);
+    root.style.setProperty('--ui-accent-rgb', palette.accentRgb);
+  };
+
+  const getAppearanceSummaryLabel = function (settings) {
+    const normalizedSettings = normalizeAppearanceSettings(settings);
+    const colorOption = findAppearanceColorOption(normalizedSettings.color);
+    const modeLabel = normalizedSettings.mode === 'dark' ? 'Oscuro' : 'Claro';
+
+    return modeLabel + ' · ' + colorOption.label;
+  };
+
+  const readStoredActiveClient = function () {
+    const storedClient = window.sessionStorage.getItem(ACTIVE_CLIENT_STORAGE_KEY)
+      || window.localStorage.getItem(ACTIVE_CLIENT_PERSISTENT_STORAGE_KEY);
 
     if (!storedClient) {
-      return Object.assign({}, DEFAULT_ACTIVE_CLIENT);
+      return null;
     }
 
     try {
       return normalizeActiveClient(JSON.parse(storedClient));
     } catch (error) {
       window.sessionStorage.removeItem(ACTIVE_CLIENT_STORAGE_KEY);
-      return Object.assign({}, DEFAULT_ACTIVE_CLIENT);
+      window.localStorage.removeItem(ACTIVE_CLIENT_PERSISTENT_STORAGE_KEY);
+      return null;
     }
   };
 
+  const hydrateActiveClientSession = function () {
+    const storedClient = readStoredActiveClient();
+
+    if (!storedClient) {
+      return null;
+    }
+
+    window.sessionStorage.setItem(ACTIVE_CLIENT_STORAGE_KEY, JSON.stringify(storedClient));
+    return storedClient;
+  };
+
+  const saveActiveClient = function (client) {
+    const normalizedClient = normalizeActiveClient(client);
+
+    window.sessionStorage.setItem(ACTIVE_CLIENT_STORAGE_KEY, JSON.stringify(normalizedClient));
+    window.localStorage.setItem(ACTIVE_CLIENT_PERSISTENT_STORAGE_KEY, JSON.stringify(normalizedClient));
+  };
+
+  const loadActiveClient = function () {
+    const storedClient = hydrateActiveClientSession();
+
+    if (!storedClient) {
+      return Object.assign({}, DEFAULT_ACTIVE_CLIENT);
+    }
+
+    return storedClient;
+  };
+
+  const hasAuthenticatedClient = function () {
+    return Boolean(readStoredActiveClient());
+  };
+
+  const bootClientForAppearance = readStoredActiveClient();
+  applyAppearanceTheme(bootClientForAppearance ? loadStoredAppearanceSettings(bootClientForAppearance) : DEFAULT_APPEARANCE_SETTINGS);
+
+  if (isAuthPage && hasAuthenticatedClient()) {
+    window.location.replace('/dashboard.html');
+    return;
+  }
+
   const clearActiveClient = function () {
     window.sessionStorage.removeItem(ACTIVE_CLIENT_STORAGE_KEY);
+    window.localStorage.removeItem(ACTIVE_CLIENT_PERSISTENT_STORAGE_KEY);
     window.sessionStorage.removeItem(ACTIVE_BUSINESS_PROFILE_STORAGE_KEY);
+    applyAppearanceTheme(DEFAULT_APPEARANCE_SETTINGS);
   };
 
   const formatTaxId = function (taxId, verificationDigit) {
@@ -400,15 +561,203 @@ document.addEventListener('DOMContentLoaded', function () {
   const showGlobalFeedbackModal = function (config) {
     const modal = ensureGlobalFeedbackModal();
     const tone = config && config.tone === 'success' ? 'success' : 'error';
+    const isInformative = config && config.informative === true;
+    const hasMessage = Boolean(config) && Object.prototype.hasOwnProperty.call(config, 'message') && String(config.message || '').trim();
 
     modal.card.classList.toggle('is-success', tone === 'success');
     modal.card.classList.toggle('is-error', tone !== 'success');
-    modal.badge.textContent = config && config.badge ? config.badge : (tone === 'success' ? 'Listo' : 'Atención');
-    modal.title.textContent = config && config.title ? config.title : (tone === 'success' ? 'Todo salió bien' : 'Algo salió mal');
-    modal.message.textContent = config && config.message ? config.message : 'Intenta nuevamente en unos segundos.';
-    modal.primary.textContent = config && config.primaryLabel ? config.primaryLabel : 'Entendido';
+    modal.card.classList.toggle('is-title-only', isInformative && !hasMessage);
+    modal.badge.textContent = !isInformative && config && config.badge ? config.badge : '';
+    modal.badge.classList.toggle('hidden', isInformative || !(config && config.badge));
+    modal.title.textContent = config && config.title ? config.title : (tone === 'success' ? 'TODO SALIÓ BIEN' : 'ALGO SALIÓ MAL');
+    modal.title.style.textTransform = 'uppercase';
+    modal.message.textContent = hasMessage ? config.message : '';
+    modal.message.classList.toggle('hidden', !hasMessage);
+    modal.primary.textContent = config && config.primaryLabel ? config.primaryLabel : 'ENTENDIDO';
     modal.overlay.classList.remove('hidden');
-    modal.primary.focus();
+    
+    if (isInformative && !hasMessage) {
+      const autoCloseMs = Number(config && config.autoCloseMs) || 1800;
+      window.setTimeout(function () {
+        modal.overlay.classList.add('hidden');
+        if (config && typeof config.onAutoClose === 'function') {
+          config.onAutoClose();
+        }
+      }, autoCloseMs);
+    } else {
+      modal.primary.focus();
+    }
+  };
+
+  let appearanceModalElements = null;
+
+  const ensureAppearanceModal = function () {
+    if (appearanceModalElements) {
+      return appearanceModalElements;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay appearance-modal-overlay hidden';
+    overlay.id = 'appearanceModal';
+    overlay.innerHTML = [
+      '<div class="modal-card appearance-modal-card" role="dialog" aria-modal="true" aria-labelledby="appearanceModalTitle">',
+      '  <div class="appearance-modal-header">',
+      '    <div class="appearance-modal-title-wrap">',
+      '      <span class="appearance-modal-kicker">Premium+ Studio</span>',
+      '      <h2 id="appearanceModalTitle">Apariencia</h2>',
+      '      <p>Personaliza el tono visual de Live con un sistema de modo y color exclusivo para cuentas Premium+.</p>',
+      '    </div>',
+      '    <button class="appearance-modal-close" type="button" aria-label="Cerrar Apariencia">',
+      '      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">',
+      '        <path d="M6 6L18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      '        <path d="M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      '      </svg>',
+      '    </button>',
+      '  </div>',
+      '  <div class="appearance-preview-shell" id="appearancePreviewShell">',
+      '    <div class="appearance-preview-topbar">',
+      '      <span class="appearance-preview-brand">Live</span>',
+      '      <span class="appearance-preview-plan">Premium+</span>',
+      '    </div>',
+      '    <div class="appearance-preview-canvas">',
+      '      <div class="appearance-preview-sidebar"></div>',
+      '      <div class="appearance-preview-main">',
+      '        <div class="appearance-preview-card is-hero">',
+      '          <span class="appearance-preview-pill">Apariencia activa</span>',
+      '          <strong id="appearancePreviewSummary">Claro · Blanco</strong>',
+      '          <span>La plataforma se adapta en tiempo real con contraste, profundidad y un acento global coherente.</span>',
+      '        </div>',
+      '        <div class="appearance-preview-grid">',
+      '          <div class="appearance-preview-card"></div>',
+      '          <div class="appearance-preview-card is-accent"></div>',
+      '        </div>',
+      '      </div>',
+      '    </div>',
+      '  </div>',
+      '  <div class="appearance-control-section">',
+      '    <div class="appearance-control-header">',
+      '      <strong>Modo</strong>',
+      '      <span>Define la atmósfera base de la interfaz.</span>',
+      '    </div>',
+      '    <div class="appearance-mode-group" data-appearance-mode-group></div>',
+      '  </div>',
+      '  <div class="appearance-control-section">',
+      '    <div class="appearance-control-header">',
+      '      <strong>Color de interfaz</strong>',
+      '      <span>Controla el tono dominante de botones, focos y señales premium.</span>',
+      '    </div>',
+      '    <div class="appearance-color-grid" data-appearance-color-grid></div>',
+      '  </div>',
+      '  <div class="appearance-modal-footer">',
+      '    <span class="appearance-modal-note">Tu selección se guarda por cuenta y se aplica globalmente al recargar.</span>',
+      '    <button class="primary-button appearance-modal-confirm" type="button">Listo</button>',
+      '  </div>',
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(overlay);
+
+    const closeButton = overlay.querySelector('.appearance-modal-close');
+    const confirmButton = overlay.querySelector('.appearance-modal-confirm');
+    const previewShell = overlay.querySelector('#appearancePreviewShell');
+    const previewSummary = overlay.querySelector('#appearancePreviewSummary');
+    const modeGroup = overlay.querySelector('[data-appearance-mode-group]');
+    const colorGrid = overlay.querySelector('[data-appearance-color-grid]');
+
+    const hide = function () {
+      overlay.classList.add('hidden');
+    };
+
+    overlay.addEventListener('click', function (event) {
+      if (event.target === overlay) {
+        hide();
+      }
+    });
+
+    closeButton.addEventListener('click', hide);
+    confirmButton.addEventListener('click', hide);
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !overlay.classList.contains('hidden')) {
+        hide();
+      }
+    });
+
+    appearanceModalElements = {
+      overlay,
+      closeButton,
+      confirmButton,
+      previewShell,
+      previewSummary,
+      modeGroup,
+      colorGrid,
+      hide
+    };
+
+    return appearanceModalElements;
+  };
+
+  const renderAppearanceModal = function (client) {
+    const modal = ensureAppearanceModal();
+    const settings = loadStoredAppearanceSettings(client);
+
+    modal.modeGroup.innerHTML = APPEARANCE_MODE_OPTIONS.map(function (option) {
+      const isSelected = settings.mode === option.value;
+
+      return [
+        '<button type="button" class="appearance-mode-button' + (isSelected ? ' is-selected' : '') + '" data-appearance-mode="' + escapeHtml(option.value) + '" aria-pressed="' + String(isSelected) + '">',
+        '  <span>' + escapeHtml(option.label) + '</span>',
+        '</button>'
+      ].join('');
+    }).join('');
+
+    modal.colorGrid.innerHTML = APPEARANCE_COLOR_OPTIONS.map(function (option) {
+      const isSelected = settings.color === option.value;
+
+      return [
+        '<button type="button" class="appearance-color-option' + (isSelected ? ' is-selected' : '') + '" data-appearance-color="' + escapeHtml(option.value) + '" aria-pressed="' + String(isSelected) + '">',
+        '  <span class="appearance-color-swatch" style="background:' + escapeHtml(option.swatch) + '"></span>',
+        '  <span class="appearance-color-copy">',
+        '    <strong>' + escapeHtml(option.label) + '</strong>',
+        '  </span>',
+        '</button>'
+      ].join('');
+    }).join('');
+
+    modal.previewShell.dataset.previewMode = settings.mode;
+    modal.previewShell.dataset.previewAccent = settings.color;
+    modal.previewSummary.textContent = getAppearanceSummaryLabel(settings);
+  };
+
+  const openAppearanceModal = function () {
+    const activeClient = loadActiveClient();
+
+    if (!canAccessFeature(activeClient.plan, 'appearance')) {
+      navigateWithPortalTransition('plan-selection.html');
+      return;
+    }
+
+    renderAppearanceModal(activeClient);
+    const modal = ensureAppearanceModal();
+    modal.overlay.classList.remove('hidden');
+    modal.confirmButton.focus();
+  };
+
+  const updateAppearanceSetting = function (propertyName, value) {
+    const activeClient = loadActiveClient();
+
+    if (!canAccessFeature(activeClient.plan, 'appearance')) {
+      return;
+    }
+
+    const nextSettings = normalizeAppearanceSettings(Object.assign({}, loadStoredAppearanceSettings(activeClient), {
+      [propertyName]: value
+    }));
+
+    saveAppearanceSettings(activeClient, nextSettings);
+    applyAppearanceTheme(nextSettings);
+    renderAppearanceModal(activeClient);
+    renderGlobalAccountDropdown();
   };
 
   const mapDocumentTypeValue = function (value) {
@@ -1040,6 +1389,9 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   const getAccountMenuMarkup = function (client) {
+    const canCustomizeAppearance = canAccessFeature(client.plan, 'appearance');
+    const appearanceSummary = getAppearanceSummaryLabel(loadStoredAppearanceSettings(client));
+
     return [
       '<div class="profile-card account-menu-card">',
       '  <span class="profile-avatar account-menu-avatar">' + escapeHtml(getInitials(client)) + '</span>',
@@ -1068,6 +1420,21 @@ document.addEventListener('DOMContentLoaded', function () {
       '    </span>',
       '    <span>Configuración</span>',
       '  </a>',
+      '  <button type="button" class="dropdown-link dropdown-link-feature dropdown-link-appearance' + (canCustomizeAppearance ? '' : ' is-locked') + '" data-account-appearance-action="true" aria-disabled="' + String(!canCustomizeAppearance) + '">',
+      '    <span class="dropdown-link-icon" aria-hidden="true">',
+      '      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">',
+      '        <rect x="4.5" y="5" width="15" height="14" rx="4" stroke="currentColor" stroke-width="1.8"/>',
+      '        <path d="M8 9.5H16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      '        <path d="M8 13H13.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      '        <circle cx="17.5" cy="8" r="1.2" fill="currentColor" stroke="none"/>',
+      '      </svg>',
+      '    </span>',
+      '    <span class="dropdown-link-copy">',
+      '      <span>Apariencia</span>',
+      '      <small>' + escapeHtml(canCustomizeAppearance ? appearanceSummary : 'Exclusivo de Premium+') + '</small>',
+      '    </span>',
+      '    <span class="dropdown-link-meta' + (canCustomizeAppearance ? ' is-active' : '') + '">' + escapeHtml(canCustomizeAppearance ? 'Studio' : 'Premium+') + '</span>',
+      '  </button>',
       '  <a href="#" class="dropdown-link">',
       '    <span class="dropdown-link-icon" aria-hidden="true">',
       '      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">',
@@ -1116,42 +1483,53 @@ document.addEventListener('DOMContentLoaded', function () {
     if (normalizedPlan === 'GRATUITO') {
       return [
         '<div class="plan-card free-plan-card">',
+        '  <div class="plan-card-aura" aria-hidden="true"></div>',
         '  <div class="plan-card-header">',
-        '    <span class="plan-icon plan-icon-upgrade" aria-hidden="true">',
+        '    <span class="plan-icon plan-icon-free" aria-hidden="true">',
         '      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">',
-        '        <path d="M12 4V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-        '        <path d="M7 9L12 4L17 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+        '        <rect x="4" y="5" width="16" height="14" rx="4" stroke="currentColor" stroke-width="1.7"/>',
+        '        <path d="M8 12H16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
+        '        <path d="M8 9H11.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
         '      </svg>',
         '    </span>',
         '    <div class="plan-card-title-group">',
+        '      <span class="plan-card-eyebrow">Nivel base</span>',
         '      <strong>' + escapeHtml(getSidebarPlanTitle(client.plan)) + '</strong>',
         '      <span class="plan-membership-status">Plan actual</span>',
         '    </div>',
         '  </div>',
-        '  <p>Actualiza para ampliar tus días de publicación mensuales y desbloquear funciones premium.</p>',
-        '  <a href="plan-selection.html" class="secondary-button plan-card-action">Actualizar Plan</a>',
+        '  <p>Activa presencia en Live con una base elegante para validar tu operación antes de invertir en capacidad superior.</p>',
+        '  <div class="plan-card-metrics">',
+        '    <span>3 días/mes</span>',
+        '    <span>Sin analytics</span>',
+        '  </div>',
+        '  <a href="plan-selection.html" class="secondary-button plan-card-action">Explorar upgrade</a>',
         '</div>'
       ].join('');
     }
 
     if (normalizedPlan === 'PREMIUM_PLUS') {
       return [
-        '<div class="plan-card premium-plan-card">',
+        '<div class="plan-card premium-plan-card premium-plus-plan-card">',
+        '  <div class="plan-card-aura" aria-hidden="true"></div>',
         '  <div class="plan-card-header">',
         '    <span class="plan-icon plan-icon-crown" aria-hidden="true">',
         '      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">',
-        '        <path d="M4 17.5L6.6 9L10.4 12.2L12 6.5L13.6 12.2L17.4 9L20 17.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
-        '        <path d="M7.2 14.4H16.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-        '        <path d="M8.4 17.5H15.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-        '        <circle cx="12" cy="5.2" r="1.1" fill="currentColor" stroke="none"/>',
+        '        <path d="M12 3.8L14.15 8.15L18.95 8.85L15.48 12.23L16.3 17L12 14.74L7.7 17L8.52 12.23L5.05 8.85L9.85 8.15L12 3.8Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>',
+        '        <path d="M7.5 19.2H16.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
         '      </svg>',
         '    </span>',
         '    <div class="plan-card-title-group">',
+        '      <span class="plan-card-eyebrow">Top tier</span>',
         '      <strong>Premium+</strong>',
         '      <span class="plan-membership-status">Premium+ activo</span>',
         '    </div>',
         '  </div>',
-        '  <p>Incluye publicación ilimitada, analíticas completas y acceso total a la experiencia Live.</p>',
+        '  <p>Tu cuenta está en la capa más alta: publicación ilimitada, analíticas completas, acceso total y Apariencia avanzada exclusiva.</p>',
+        '  <div class="plan-card-metrics">',
+        '    <span>Ilimitado</span>',
+        '    <span>Apariencia Studio</span>',
+        '  </div>',
         '</div>'
       ].join('');
     }
@@ -1159,39 +1537,49 @@ document.addEventListener('DOMContentLoaded', function () {
     if (normalizedPlan === 'PREMIUM') {
       return [
         '<div class="plan-card premium-plan-card">',
+        '  <div class="plan-card-aura" aria-hidden="true"></div>',
         '  <div class="plan-card-header">',
-        '    <span class="plan-icon" aria-hidden="true">',
+        '    <span class="plan-icon plan-icon-premium" aria-hidden="true">',
         '      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">',
-        '        <path d="M12 4V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-        '        <path d="M7 9L12 4L17 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+        '        <path d="M5 16.5L8.2 8L12 11L15.8 8L19 16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+        '        <path d="M7.5 18.5H16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+        '        <circle cx="12" cy="6" r="1.2" fill="currentColor" stroke="none"/>',
         '      </svg>',
         '    </span>',
         '    <div class="plan-card-title-group">',
+        '      <span class="plan-card-eyebrow">Motor comercial</span>',
         '      <strong>Premium</strong>',
         '      <span class="plan-membership-status">Premium activo</span>',
         '    </div>',
         '  </div>',
-        '  <p>Incluye 30 días de publicación al mes, venta de boletería y mayor capacidad operativa en Live.</p>',
-        '  <a href="plan-selection.html" class="secondary-button plan-card-action">Actualizar Plan</a>',
+        '  <p>Tu membresía ya desbloquea continuidad operativa, venta de boletería y una presencia claramente más potente dentro de Live.</p>',
+        '  <div class="plan-card-metrics">',
+        '    <span>30 días/mes</span>',
+        '    <span>Boletería incluida</span>',
+        '  </div>',
+        '  <a href="plan-selection.html" class="secondary-button plan-card-action">Escalar a Premium+</a>',
         '</div>'
       ].join('');
     }
 
     return [
       '<div class="plan-card premium-plan-card">',
+      '  <div class="plan-card-aura" aria-hidden="true"></div>',
       '  <div class="plan-card-header">',
-      '    <span class="plan-icon" aria-hidden="true">',
+      '    <span class="plan-icon plan-icon-premium" aria-hidden="true">',
       '      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">',
-      '        <path d="M12 4V20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-      '        <path d="M7 9L12 4L17 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+      '        <path d="M5 16.5L8.2 8L12 11L15.8 8L19 16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+      '        <path d="M7.5 18.5H16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      '        <circle cx="12" cy="6" r="1.2" fill="currentColor" stroke="none"/>',
       '      </svg>',
       '    </span>',
       '    <div class="plan-card-title-group">',
+      '      <span class="plan-card-eyebrow">Membresía activa</span>',
       '      <strong>' + escapeHtml(getSidebarPlanTitle(client.plan)) + '</strong>',
       '      <span class="plan-membership-status">Membresia activa</span>',
       '    </div>',
       '  </div>',
-      '  <p>Tienes acceso ampliado para publicar eventos y gestionar tu negocio con mas capacidad.</p>',
+      '  <p>Tienes capacidad ampliada para publicar, operar y escalar tu presencia dentro de Live.</p>',
       '</div>'
     ].join('');
   };
@@ -1565,6 +1953,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (result.user) {
           saveActiveClient(result.user);
+          applyAppearanceTheme(loadStoredAppearanceSettings(result.user));
         }
 
         document.body.classList.add('is-transitioning');
@@ -1589,6 +1978,27 @@ document.addEventListener('DOMContentLoaded', function () {
   syncPlanAvailabilityIndicators();
   renderPlanFeatureAccess();
   syncGlobalBusinessProfilesDropdown();
+
+  const appearanceModal = ensureAppearanceModal();
+  appearanceModal.modeGroup.addEventListener('click', function (event) {
+    const modeButton = event.target.closest('[data-appearance-mode]');
+
+    if (!modeButton) {
+      return;
+    }
+
+    updateAppearanceSetting('mode', modeButton.dataset.appearanceMode);
+  });
+
+  appearanceModal.colorGrid.addEventListener('click', function (event) {
+    const colorButton = event.target.closest('[data-appearance-color]');
+
+    if (!colorButton) {
+      return;
+    }
+
+    updateAppearanceSetting('color', colorButton.dataset.appearanceColor);
+  });
 
   document.querySelectorAll('.profile-dropdown').forEach(function (profileDropdown) {
     const profileTrigger = profileDropdown.querySelector('.profile-trigger');
@@ -1658,6 +2068,14 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         setDropdownOpen(false);
         navigateWithPortalTransition('business-profile.html');
+        return;
+      }
+
+      const appearanceAction = event.target.closest('[data-account-appearance-action]');
+      if (appearanceAction) {
+        event.preventDefault();
+        setDropdownOpen(false);
+        openAppearanceModal();
         return;
       }
 
@@ -2773,26 +3191,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const tone = config && config.tone === 'error' ? 'error' : 'success';
       const isBrief = Boolean(config && config.brief);
+      const isInformative = config && config.informative === true;
       const hasCustomMessage = Boolean(config) && Object.prototype.hasOwnProperty.call(config, 'message');
-      const messageText = hasCustomMessage
-        ? String(config && config.message ? config.message : '').trim()
-        : 'La solicitud se completó correctamente.';
+      const messageText = isInformative
+        ? ''
+        : hasCustomMessage
+          ? String(config && config.message ? config.message : '').trim()
+          : (tone === 'error' ? 'Intenta nuevamente en unos segundos.' : '');
       profileFeedbackCard.classList.toggle('is-error', tone === 'error');
       profileFeedbackCard.classList.toggle('is-success', tone !== 'error');
-      profileFeedbackCard.classList.toggle('is-brief', isBrief);
       profileFeedbackCard.classList.toggle('is-title-only', !messageText);
 
       if (profileFeedbackBadge) {
-        const badgeText = isBrief ? '' : String(config && config.badge ? config.badge : '').trim();
+        const badgeText = isInformative ? '' : String(config && config.badge ? config.badge : '').trim();
         profileFeedbackBadge.textContent = badgeText;
         profileFeedbackBadge.classList.toggle('hidden', !badgeText);
       }
 
-      profileFeedbackTitle.textContent = String(config && config.title ? config.title : 'Actualización del perfil');
+      profileFeedbackTitle.textContent = String(config && config.title ? config.title : 'ACTUALIZACIÓN DEL PERFIL');
+      profileFeedbackTitle.style.textTransform = 'uppercase';
       profileFeedbackMessage.textContent = messageText;
       profileFeedbackMessage.classList.toggle('hidden', !messageText);
 
-      profileFeedbackPrimary.textContent = String(config && config.primaryLabel ? config.primaryLabel : 'Entendido');
+      profileFeedbackPrimary.textContent = String(config && config.primaryLabel ? config.primaryLabel : 'ENTENDIDO');
       profileFeedbackPrimaryHandler = config && typeof config.onPrimary === 'function' ? config.onPrimary : function () {
         hideProfileFeedbackModal();
       };
@@ -2809,7 +3230,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (profileFeedbackActions) {
-        const shouldHideActions = isBrief || Boolean(config && config.hideActions);
+        const shouldHideActions = Boolean(config && config.hideActions);
         profileFeedbackActions.classList.toggle('hidden', shouldHideActions);
       }
 
@@ -2820,7 +3241,15 @@ document.addEventListener('DOMContentLoaded', function () {
         profileFeedbackAutoCloseTimeout = null;
       }
 
-      if (config && Number(config.autoCloseMs) > 0) {
+      if (isInformative && !messageText && config && Number(config.autoCloseMs) > 0) {
+        profileFeedbackAutoCloseTimeout = window.setTimeout(function () {
+          profileFeedbackAutoCloseTimeout = null;
+          hideProfileFeedbackModal();
+          if (typeof config.onAutoClose === 'function') {
+            config.onAutoClose();
+          }
+        }, Number(config.autoCloseMs));
+      } else if (config && Number(config.autoCloseMs) > 0) {
         profileFeedbackAutoCloseTimeout = window.setTimeout(function () {
           profileFeedbackAutoCloseTimeout = null;
           if (typeof config.onAutoClose === 'function') {
@@ -2833,7 +3262,28 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     };
 
+    const handleProfileNotFoundError = function () {
+      saveActiveBusinessProfileId('');
+      hideDeleteProfileModal();
+      hideProfileFeedbackModal();
+      return {
+        tone: 'error',
+        badge: 'Recurso no encontrado',
+        title: 'No pudimos encontrar el perfil',
+        message: 'Este perfil ya no existe o fue eliminado. Vamos a llevarte a un lugar seguro.',
+        primaryLabel: 'Entendido',
+        onPrimary: function () {
+          hideProfileFeedbackModal();
+          navigateWithPortalTransition('dashboard.html');
+        }
+      };
+    };
+
     const getFriendlyProfileSaveError = function (error) {
+      if (error && error.status === 404) {
+        return handleProfileNotFoundError();
+      }
+
       const rawMessage = String(error && error.message ? error.message : '').trim();
       const normalizedMessage = rawMessage.toLowerCase();
 
@@ -3172,10 +3622,12 @@ document.addEventListener('DOMContentLoaded', function () {
           hideDeleteProfileModal();
           showProfileFeedbackModal({
             tone: 'success',
-            badge: 'Perfil eliminado',
-            title: 'El perfil fue eliminado',
-            message: 'El perfil activo se eliminó correctamente y ya no estará disponible en tu cuenta.',
-            primaryLabel: 'Ir al dashboard',
+            informative: true,
+            title: 'PERFIL ELIMINADO CON ÉXITO',
+            autoCloseMs: 1800,
+            onAutoClose: function () {
+              navigateWithPortalTransition('dashboard.html');
+            },
             onPrimary: function () {
               hideProfileFeedbackModal();
               navigateWithPortalTransition('dashboard.html');
@@ -3443,13 +3895,21 @@ document.addEventListener('DOMContentLoaded', function () {
         populateProfileDetails(loadedProfile);
         renderProfileStatus(statusResult);
       } catch (error) {
-        showProfileFeedbackModal({
-          tone: 'error',
-          badge: 'No se pudo cargar',
-          title: 'No pudimos cargar el perfil',
-          message: 'Intenta nuevamente en un momento. Si el problema continúa, vuelve al dashboard y reabre este perfil.',
-          primaryLabel: 'Entendido'
-        });
+        if (error && error.status === 404) {
+          showProfileFeedbackModal(handleProfileNotFoundError());
+        } else {
+          showProfileFeedbackModal({
+            tone: 'error',
+            badge: 'No se pudo cargar',
+            title: 'No pudimos cargar el perfil',
+            message: 'Intenta nuevamente en un momento. Si el problema continúa, vuelve al dashboard y reabre este perfil.',
+            primaryLabel: 'Entendido',
+            onPrimary: function () {
+              hideProfileFeedbackModal();
+              navigateWithPortalTransition('dashboard.html');
+            }
+          });
+        }
       }
     };
 
@@ -3562,12 +4022,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (wasInitialBusinessSetup) {
           showProfileFeedbackModal({
             tone: 'success',
-            brief: true,
+            informative: true,
             hideActions: true,
-            title: 'Perfil enviado a revisión',
-            message: 'Tu perfil fue creado correctamente y ahora está en proceso de validación.',
+            title: 'PERFIL ENVIADO A REVISIÓN',
             autoCloseMs: 1800,
             onAutoClose: function () {
+              showLoadingOverlay();
               hideProfileFeedbackModal();
               navigateWithPortalTransition('dashboard.html');
             }
@@ -3575,10 +4035,9 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           showProfileFeedbackModal({
             tone: 'success',
-            brief: true,
+            informative: true,
             hideActions: true,
-            title: isLegalSave ? 'Información legal actualizada' : 'Perfil actualizado con éxito',
-            message: '',
+            title: isLegalSave ? 'INFORMACIÓN LEGAL ACTUALIZADA' : 'PERFIL ACTUALIZADO CON ÉXITO',
             autoCloseMs: 1000
           });
         }
@@ -3681,19 +4140,21 @@ document.addEventListener('DOMContentLoaded', function () {
       planCards.forEach(function (card) {
         const button = card.querySelector('[data-plan-select-button]');
         const existingCurrentLabel = card.querySelector('.plan-current-label');
+        const footer = card.querySelector('[data-plan-footer]');
         const isCurrentPlan = card.dataset.planOption === currentPlanKey;
         const isFreePlan = card.dataset.planOption === 'gratuito';
         const shouldDisable = isFreePlan || isCurrentPlan;
 
         card.classList.toggle('is-disabled', shouldDisable);
         card.classList.toggle('is-selected', false);
+        card.classList.toggle('is-current', isCurrentPlan);
         card.setAttribute('aria-disabled', String(shouldDisable));
         card.setAttribute('aria-pressed', 'false');
         card.tabIndex = shouldDisable ? -1 : 0;
 
         if (button) {
           button.classList.remove('is-selected');
-          button.textContent = 'Seleccionar plan';
+          button.textContent = card.dataset.ctaDefault || 'Seleccionar plan';
           button.hidden = shouldDisable;
         }
 
@@ -3702,7 +4163,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (isCurrentPlan) {
-          card.insertAdjacentHTML('beforeend', '<div class="plan-current-label">Plan actual</div>');
+          (footer || card).insertAdjacentHTML('beforeend', '<div class="plan-current-label">Plan actual</div>');
         }
       });
     };
@@ -3730,7 +4191,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (button) {
           button.classList.toggle('is-selected', !isDisabled && isSelected);
-          button.textContent = !isDisabled && isSelected ? 'Continuar con este plan' : 'Seleccionar plan';
+          button.textContent = !isDisabled && isSelected
+            ? (card.dataset.ctaSelected || 'Continuar con este plan')
+            : (card.dataset.ctaDefault || 'Seleccionar plan');
         }
       });
     };
@@ -3780,8 +4243,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const registerForm = document.querySelector('.register-form');
   if (registerForm) {
-    const modal = document.getElementById('successModal');
-    const modalClose = document.getElementById('modalClose');
     const registerSubmitButton = registerForm.querySelector('.login-submit');
     let registerRedirectTarget = '/dashboard.html';
 
@@ -3839,11 +4300,15 @@ document.addEventListener('DOMContentLoaded', function () {
         if (result.user) {
           saveActiveClient(result.user);
           saveRegisteredClientDraft(result.user);
+          applyAppearanceTheme(loadStoredAppearanceSettings(result.user));
         }
 
         registerRedirectTarget = result.redirect || '/dashboard.html';
         registerForm.reset();
-        modal.classList.remove('hidden');
+        document.body.classList.add('is-transitioning');
+        window.setTimeout(function () {
+          window.location.href = registerRedirectTarget;
+        }, 500);
         setRegisterLoading(false);
       } catch (error) {
         setRegisterLoading(false);
@@ -3854,20 +4319,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       }
     });
-
-    if (modalClose) {
-      modalClose.addEventListener('click', function () {
-        document.getElementById('successModal').classList.add('hidden');
-        window.location.href = registerRedirectTarget;
-      });
-    }
-
-    if (modal) {
-      modal.addEventListener('click', function (event) {
-        if (event.target === this) {
-          this.classList.add('hidden');
-        }
-      });
-    }
   }
 });
